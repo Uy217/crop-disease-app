@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Crop Disease Detection</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f4f0; text-align: center; padding: 50px; }
+        h1 { color: #2e7d32; }
+        .container { background: white; max-width: 500px; margin: 0 auto; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        input[type="file"] { margin: 20px 0; }
+        button { background-color: #2e7d32; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #1b5e20; }
+        #result { margin-top: 20px; font-size: 18px; }
+        img#preview { max-width: 100%; margin-top: 15px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 Crop Disease Detection</h1>
+        <p>Upload a leaf image to detect the disease</p>
+        <input type="file" id="imageInput" accept="image/*">
+        <br>
+        <img id="preview" style="display:none;">
+        <br>
+        <button onclick="predict()">Predict</button>
+        <div id="result"></div>
+    </div>
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const preview = document.getElementById('preview');
+        const resultDiv = document.getElementById('result');
+        imageInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            }
+        });
+        function predict() {
+            const file = imageInput.files[0];
+            if (!file) {
+                resultDiv.innerHTML = "<p style='color:red;'>Please select an image first.</p>";
+                return;
+            }
+            resultDiv.innerHTML = "<p>Analyzing...</p>";
+            const formData = new FormData();
+            formData.append('file', file);
+            fetch('/predict', { method: 'POST', body: formData })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    resultDiv.innerHTML = `<p style='color:red;'>${data.error}</p>`;
+                } else {
+                    resultDiv.innerHTML = `<p><strong>Disease:</strong> ${data.disease}</p><p><strong>Confidence:</strong> ${data.confidence}</p>`;
+                }
+            })
+            .catch(err => {
+                resultDiv.innerHTML = "<p style='color:red;'>Error connecting to server.</p>";
+            });
+        }
+    </script>
+</body>
+</html>
