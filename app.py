@@ -1,14 +1,19 @@
 from flask import Flask, request, render_template, jsonify
-from tensorflow.keras.preprocessing import image
-from tensorflow.keras.applications.efficientnet import preprocess_input
 import numpy as np
+from PIL import Image
+import tensorflow as tf
 import os
-import gc
 
 app = Flask(__name__)
 
-MODEL_PATH = "model/efficientnet_best.keras"
-model = None  # not loaded yet
+MODEL_PATH = "model/efficientnet_best.tflite"
+
+# Load TFLite model once at startup — much lighter than full Keras model
+interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
+interpreter.allocate_tensors()
+
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
 
 class_labels = [
     'Pepper,_bell___Bacterial_spot',
@@ -28,12 +33,13 @@ class_labels = [
     'Tomato___healthy'
 ]
 
-def get_model():
-    global model
-    if model is None:
-        from tensorflow.keras.models import load_model
-        model = load_model(MODEL_PATH)
-    return model
+def preprocess_image(img):
+    img = img.resize((224, 224)).convert('RGB')
+    arr = np.array(img, dtype=np.float32)
+    # EfficientNet preprocessing: scale to [-1, 1]
+    arr = (arr / 127.5) - 1.0
+    arr = np.expand_dims(arr, axis=0)
+    return arr
 
 @app.route('/')
 def home():
@@ -48,23 +54,15 @@ def predict():
     if file.filename == '':
         return jsonify({'error': 'No file selected'}), 400
 
-    filepath = os.path.join('uploads', file.filename)
-    os.makedirs('uploads', exist_ok=True)
-    file.save(filepath)
+    img = Image.open(file.stream)
+    input_data = preprocess_image(img)
 
-    img = image.load_img(filepath, target_size=(224, 224))
-    img_array = image.img_to_array(img)
-    img_array = np.expand_dims(img_array, axis=0)
-    img_array = preprocess_input(img_array)
+    interpreter.set_tensor(input_details[0]['index'], input_data)
+    interpreter.invoke()
+    predictions = interpreter.get_tensor(output_details[0]['index'])
 
-    m = get_model()
-    predictions = m.predict(img_array)
     predicted_class = class_labels[np.argmax(predictions)]
     confidence = float(np.max(predictions)) * 100
-
-    os.remove(filepath)
-    del img_array, predictions
-    gc.collect()
 
     return jsonify({
         'disease': predicted_class,
