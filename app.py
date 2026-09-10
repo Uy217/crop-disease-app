@@ -1,17 +1,15 @@
 from flask import Flask, request, render_template, jsonify
-from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.efficientnet import preprocess_input
 import numpy as np
 import os
+import gc
 
 app = Flask(__name__)
 
-# Load the trained model once when the server starts
 MODEL_PATH = "model/efficientnet_best.keras"
-model = load_model(MODEL_PATH)
+model = None  # not loaded yet
 
-# Class labels — must match the order from training (train_gen.class_indices)
 class_labels = [
     'Pepper,_bell___Bacterial_spot',
     'Pepper,_bell___healthy',
@@ -29,6 +27,13 @@ class_labels = [
     'Tomato___Tomato_mosaic_virus',
     'Tomato___healthy'
 ]
+
+def get_model():
+    global model
+    if model is None:
+        from tensorflow.keras.models import load_model
+        model = load_model(MODEL_PATH)
+    return model
 
 @app.route('/')
 def home():
@@ -52,11 +57,14 @@ def predict():
     img_array = np.expand_dims(img_array, axis=0)
     img_array = preprocess_input(img_array)
 
-    predictions = model.predict(img_array)
+    m = get_model()
+    predictions = m.predict(img_array)
     predicted_class = class_labels[np.argmax(predictions)]
     confidence = float(np.max(predictions)) * 100
 
     os.remove(filepath)
+    del img_array, predictions
+    gc.collect()
 
     return jsonify({
         'disease': predicted_class,
