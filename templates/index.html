@@ -10,7 +10,10 @@
         input[type="file"] { margin: 20px 0; }
         button { background-color: #2e7d32; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
         button:hover { background-color: #1b5e20; }
-        #result { margin-top: 20px; font-size: 18px; text-align: left; }
+        #result { margin-top: 20px; font-size: 16px; text-align: left; }
+        #result h3 { margin-bottom: 4px; }
+        #result ol { padding-left: 20px; margin-top: 6px; }
+        #result li { margin-bottom: 6px; }
         img#preview { max-width: 100%; margin-top: 15px; border-radius: 8px; }
     </style>
 </head>
@@ -51,7 +54,13 @@
                 if (data.error) {
                     resultDiv.innerHTML = `<p style='color:red;'>${data.error}</p>`;
                 } else {
-                    resultDiv.innerHTML = `<p><strong>Disease:</strong> ${data.disease}</p><p><strong>Confidence:</strong> ${data.confidence}</p><p><strong>Recommendation:</strong> ${data.recommendation}</p>`;
+                    const stepsHtml = data.recommendation_steps.map(step => `<li>${step}</li>`).join('');
+                    resultDiv.innerHTML = `
+                        <p><strong>Disease:</strong> ${data.disease}</p>
+                        <p><strong>Confidence:</strong> ${data.confidence}</p>
+                        <h3>Recommended Steps:</h3>
+                        <ol>${stepsHtml}</ol>
+                    `;
                 }
             })
             .catch(err => {
