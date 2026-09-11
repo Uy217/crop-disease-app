@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 MODEL_PATH = "model/efficientnet_best.tflite"
 
-# Load TFLite model once at startup — much lighter than full Keras model
+# Load TFLite model once at startup
 interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
 interpreter.allocate_tensors()
 
@@ -36,8 +36,8 @@ class_labels = [
 def preprocess_image(img):
     img = img.resize((224, 224)).convert('RGB')
     arr = np.array(img, dtype=np.float32)
-    # EfficientNet preprocessing: scale to [-1, 1]
-    arr = (arr / 127.5) - 1.0
+    # No manual rescaling here — EfficientNet has its own
+    # built-in Rescaling + Normalization layers, matching training.
     arr = np.expand_dims(arr, axis=0)
     return arr
 
