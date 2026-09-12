@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Crop Disease Detection</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f0f4f0; text-align: center; padding: 50px; }
         h1 { color: #2e7d32; }
@@ -16,7 +17,32 @@
         #result li { margin-bottom: 6px; }
         img#preview { max-width: 100%; margin-top: 15px; border-radius: 8px; }
         #chatSection { display: none; border-top: 1px solid #ddd; padding-top: 15px; }
-        #chatAnswer { margin-top: 10px; background: #f0f4f0; padding: 10px; border-radius: 6px; }
+        #chatAnswer {
+            margin-top: 10px;
+            background: #f0f4f0;
+            padding: 16px 18px;
+            border-radius: 6px;
+            line-height: 1.6;
+        }
+        #chatAnswer h2, #chatAnswer h3 {
+            color: #2e7d32;
+            margin-top: 16px;
+            margin-bottom: 6px;
+            font-size: 17px;
+        }
+        #chatAnswer h2:first-child, #chatAnswer h3:first-child {
+            margin-top: 0;
+        }
+        #chatAnswer p {
+            margin-bottom: 12px;
+        }
+        #chatAnswer ul, #chatAnswer ol {
+            padding-left: 20px;
+            margin-bottom: 12px;
+        }
+        #chatAnswer li {
+            margin-bottom: 6px;
+        }
     </style>
 </head>
 <body>
@@ -101,7 +127,7 @@
                 if (data.error) {
                     chatAnswer.innerHTML = `<p style='color:red;'>${data.error}</p>`;
                 } else {
-                    chatAnswer.innerHTML = `<p>${data.answer}</p>`;
+                    chatAnswer.innerHTML = marked.parse(data.answer);
                 }
             })
             .catch(err => {
