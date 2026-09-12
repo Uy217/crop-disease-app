@@ -3,7 +3,7 @@ import numpy as np
 from PIL import Image
 import tensorflow as tf
 import os
-import google.generativeai as genai
+from google import genai
 
 app = Flask(__name__)
 
@@ -15,7 +15,7 @@ interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
 class_labels = [
     'Pepper,_bell___Bacterial_spot', 'Pepper,_bell___healthy',
@@ -89,15 +89,18 @@ def chat():
         return jsonify({'error': 'No question provided'}), 400
 
     try:
-        model = genai.GenerativeModel('gemini-2.0-flash')
         prompt = (
             f"You are an agricultural assistant helping a farmer whose crop leaf was diagnosed with: {disease}. "
             f"Answer their question clearly and practically in plain text, no markdown. "
             f"Farmer's question: {question}"
         )
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt
+        )
         return jsonify({'answer': response.text})
     except Exception as e:
+        print(f"Gemini chat error: {e}")
         return jsonify({'error': 'Could not get a response right now. Please try again.'}), 500
 
 if __name__ == '__main__':
