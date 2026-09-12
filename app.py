@@ -91,7 +91,10 @@ def chat():
     try:
         prompt = (
             f"You are an agricultural assistant helping a farmer whose crop leaf was diagnosed with: {disease}. "
-            f"Answer their question clearly and practically in plain text, no markdown. "
+            f"Answer their question clearly and practically. "
+            f"Format your answer using Markdown: use short '##' subheadings to break the answer into "
+            f"sections where it makes sense (e.g. What it is, Immediate steps, Prevention), use blank lines "
+            f"between paragraphs, and use numbered or bulleted lists for any steps. Keep each paragraph short. "
             f"Farmer's question: {question}"
         )
         response = client.models.generate_content(
