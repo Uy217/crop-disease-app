@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template, jsonify
 import numpy as np
 from PIL import Image
-import tensorflow as tf
+from ai_edge_litert.interpreter import Interpreter
 import os
 import time
 from google import genai
@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 MODEL_PATH = "model/efficientnet_best.tflite"
 
-interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
+interpreter = Interpreter(model_path=MODEL_PATH)
 interpreter.allocate_tensors()
 
 input_details = interpreter.get_input_details()
