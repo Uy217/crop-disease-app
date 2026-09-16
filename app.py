@@ -17,8 +17,6 @@ output_details = interpreter.get_output_details()
 
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
-CONFIDENCE_THRESHOLD = 60.0  # below this, warn the user
-
 class_labels = [
     'Pepper,_bell___Bacterial_spot', 'Pepper,_bell___healthy',
     'Potato___Early_blight', 'Potato___Late_blight', 'Potato___healthy',
@@ -93,12 +91,10 @@ def predict():
     confidence = float(np.max(predictions)) * 100
     steps = recommendations.get(predicted_class, ["No recommendation available."])
     symptom_text = symptoms.get(predicted_class, "No symptom description available.")
-    low_confidence = confidence < CONFIDENCE_THRESHOLD
 
     return jsonify({
         'disease': predicted_class,
         'confidence': f"{confidence:.2f}%",
-        'low_confidence': low_confidence,
         'symptoms': symptom_text,
         'recommendation_steps': steps
     })
