@@ -69,8 +69,17 @@
         const preview = document.getElementById('preview');
         const resultDiv = document.getElementById('result');
         const chatSection = document.getElementById('chatSection');
+        const chatInput = document.getElementById('chatInput');
         const chatAnswer = document.getElementById('chatAnswer');
         let currentDisease = '';
+
+        function resetResults() {
+            resultDiv.innerHTML = '';
+            chatSection.style.display = 'none';
+            chatInput.value = '';
+            chatAnswer.innerHTML = '';
+            currentDisease = '';
+        }
 
         imageInput.addEventListener('change', function() {
             const file = this.files[0];
@@ -78,6 +87,7 @@
                 preview.src = URL.createObjectURL(file);
                 preview.style.display = 'block';
             }
+            resetResults();
         });
 
         function predict() {
@@ -86,8 +96,8 @@
                 resultDiv.innerHTML = "<p style='color:red;'>Please select an image first.</p>";
                 return;
             }
+            resetResults();
             resultDiv.innerHTML = "<p>Analyzing...</p>";
-            chatSection.style.display = 'none';
             const formData = new FormData();
             formData.append('file', file);
             fetch('/predict', { method: 'POST', body: formData })
@@ -107,7 +117,6 @@
                         <ol>${stepsHtml}</ol>
                     `;
                     chatSection.style.display = 'block';
-                    chatAnswer.innerHTML = '';
                 }
             })
             .catch(err => {
@@ -116,7 +125,7 @@
         }
 
         function askQuestion() {
-            const question = document.getElementById('chatInput').value;
+            const question = chatInput.value;
             if (!question) return;
             chatAnswer.innerHTML = "<p>Thinking...</p>";
             fetch('/chat', {
