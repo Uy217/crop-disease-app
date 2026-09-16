@@ -3,6 +3,7 @@ import numpy as np
 from PIL import Image
 import tensorflow as tf
 import os
+import time
 from google import genai
 
 app = Flask(__name__)
@@ -108,23 +109,31 @@ def chat():
     if not question:
         return jsonify({'error': 'No question provided'}), 400
 
-    try:
-        prompt = (
-            f"You are an agricultural assistant helping a farmer whose crop leaf was diagnosed with: {disease}. "
-            f"Answer their question clearly and practically. "
-            f"Format your answer using Markdown: use short '##' subheadings to break the answer into "
-            f"sections where it makes sense (e.g. What it is, Immediate steps, Prevention), use blank lines "
-            f"between paragraphs, and use numbered or bulleted lists for any steps. Keep each paragraph short. "
-            f"Farmer's question: {question}"
-        )
-        response = client.models.generate_content(
-            model="gemini-3.6-flash",
-            contents=prompt
-        )
-        return jsonify({'answer': response.text})
-    except Exception as e:
-        print(f"Gemini chat error: {e}")
-        return jsonify({'error': 'Could not get a response right now. Please try again.'}), 500
+    prompt = (
+        f"You are an agricultural assistant helping a farmer whose crop leaf was diagnosed with: {disease}. "
+        f"Answer their question clearly and practically. "
+        f"Format your answer using Markdown: use short '##' subheadings to break the answer into "
+        f"sections where it makes sense (e.g. What it is, Immediate steps, Prevention), use blank lines "
+        f"between paragraphs, and use numbered or bulleted lists for any steps. Keep each paragraph short. "
+        f"Farmer's question: {question}"
+    )
+
+    for attempt in range(3):
+        try:
+            response = client.models.generate_content(
+                model="gemini-3.6-flash",
+                contents=prompt
+            )
+            return jsonify({'answer': response.text})
+        except Exception as e:
+            print(f"Gemini chat error (attempt {attempt + 1}): {e}")
+            if "503" in str(e) or "UNAVAILABLE" in str(e):
+                time.sleep(2)
+                continue
+            else:
+                break
+
+    return jsonify({'error': 'Could not get a response right now. Please try again.'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
