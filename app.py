@@ -3,7 +3,7 @@ import numpy as np
 from PIL import Image
 import tensorflow as tf
 import os
-from google import genai
+import google.genai as genai
 
 app = Flask(__name__)
 
@@ -17,6 +17,8 @@ output_details = interpreter.get_output_details()
 
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
+CONFIDENCE_THRESHOLD = 60.0  # below this, warn the user
+
 class_labels = [
     'Pepper,_bell___Bacterial_spot', 'Pepper,_bell___healthy',
     'Potato___Early_blight', 'Potato___Late_blight', 'Potato___healthy',
@@ -26,6 +28,24 @@ class_labels = [
     'Tomato___Tomato_Yellow_Leaf_Curl_Virus', 'Tomato___Tomato_mosaic_virus',
     'Tomato___healthy'
 ]
+
+symptoms = {
+    'Pepper,_bell___Bacterial_spot': "Small, dark, water-soaked spots on leaves that later turn brown with a yellow halo. Spots may also appear on fruit.",
+    'Pepper,_bell___healthy': "No visible symptoms. Leaves are uniformly green with no spots, wilting, or discoloration.",
+    'Potato___Early_blight': "Dark brown spots with concentric rings (target-like pattern) on older, lower leaves first.",
+    'Potato___Late_blight': "Large, irregular, water-soaked dark green to brown patches on leaves, often with white fungal growth on the underside.",
+    'Potato___healthy': "No visible symptoms. Leaves are uniformly green with no spots, wilting, or discoloration.",
+    'Tomato___Bacterial_spot': "Small, dark, greasy-looking spots on leaves and fruit, often with a yellow halo.",
+    'Tomato___Early_blight': "Dark brown spots with concentric rings, usually starting on older lower leaves, which may yellow and drop.",
+    'Tomato___Late_blight': "Large, irregular, water-soaked grey-green patches, spreading quickly, often with white mold on leaf undersides.",
+    'Tomato___Leaf_Mold': "Pale green or yellow spots on the upper leaf surface, with olive-green to grey mold visible underneath.",
+    'Tomato___Septoria_leaf_spot': "Small, circular spots with dark borders and grey centers, mainly on lower leaves.",
+    'Tomato___Spider_mites Two-spotted_spider_mite': "Fine yellow speckling on leaves, sometimes with visible webbing on the underside in heavy infestations.",
+    'Tomato___Target_Spot': "Brown spots with concentric rings similar to early blight, can appear on leaves, stems, and fruit.",
+    'Tomato___Tomato_Yellow_Leaf_Curl_Virus': "Upward curling and yellowing of leaves, stunted plant growth, and reduced fruit production.",
+    'Tomato___Tomato_mosaic_virus': "Mottled light and dark green patches on leaves, with possible leaf curling and stunted growth.",
+    'Tomato___healthy': "No visible symptoms. Leaves are uniformly green with no spots, wilting, or discoloration."
+}
 
 recommendations = {
     'Pepper,_bell___Bacterial_spot': ["Remove and destroy infected leaves immediately.", "Avoid overhead watering to reduce leaf wetness.", "Apply a copper-based bactericide.", "Rotate crops and use certified disease-free seeds next season."],
@@ -72,10 +92,14 @@ def predict():
     predicted_class = class_labels[np.argmax(predictions)]
     confidence = float(np.max(predictions)) * 100
     steps = recommendations.get(predicted_class, ["No recommendation available."])
+    symptom_text = symptoms.get(predicted_class, "No symptom description available.")
+    low_confidence = confidence < CONFIDENCE_THRESHOLD
 
     return jsonify({
         'disease': predicted_class,
         'confidence': f"{confidence:.2f}%",
+        'low_confidence': low_confidence,
+        'symptoms': symptom_text,
         'recommendation_steps': steps
     })
 
@@ -84,26 +108,17 @@ def chat():
     data = request.get_json()
     disease = data.get('disease', 'Unknown')
     question = data.get('question', '')
-
     if not question:
         return jsonify({'error': 'No question provided'}), 400
-
     try:
         prompt = (
             f"You are an agricultural assistant helping a farmer whose crop leaf was diagnosed with: {disease}. "
-            f"Answer their question clearly and practically. "
-            f"Format your answer using Markdown: use short '##' subheadings to break the answer into "
-            f"sections where it makes sense (e.g. What it is, Immediate steps, Prevention), use blank lines "
-            f"between paragraphs, and use numbered or bulleted lists for any steps. Keep each paragraph short. "
+            f"Answer their question clearly and practically in plain text, no markdown. "
             f"Farmer's question: {question}"
         )
-        response = client.models.generate_content(
-            model="gemini-3.6-flash",
-            contents=prompt
-        )
+        response = client.models.generate_content(model="gemini-2.0-flash", contents=prompt)
         return jsonify({'answer': response.text})
     except Exception as e:
-        print(f"Gemini chat error: {e}")
         return jsonify({'error': 'Could not get a response right now. Please try again.'}), 500
 
 if __name__ == '__main__':
