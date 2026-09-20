@@ -118,20 +118,24 @@ def chat():
         f"Farmer's question: {question}"
     )
 
-    for attempt in range(3):
-        try:
-            response = client.models.generate_content(
-                model="gemini-3.6-flash",
-                contents=prompt
-            )
-            return jsonify({'answer': response.text})
-        except Exception as e:
-            print(f"Gemini chat error (attempt {attempt + 1}): {e}")
-            if "503" in str(e) or "UNAVAILABLE" in str(e):
-                time.sleep(2)
-                continue
-            else:
-                break
+    # Try the main model first, then fall back to an older model if it's overloaded
+    models_to_try = ["gemini-3.6-flash", "gemini-2.5-flash"]
+
+    for model_name in models_to_try:
+        for attempt in range(2):
+            try:
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt
+                )
+                return jsonify({'answer': response.text})
+            except Exception as e:
+                print(f"Gemini chat error [{model_name}] (attempt {attempt + 1}): {e}")
+                if "503" in str(e) or "UNAVAILABLE" in str(e):
+                    time.sleep(2)
+                    continue
+                else:
+                    break  # non-503 error, no point retrying this model
 
     return jsonify({'error': 'Could not get a response right now. Please try again.'}), 500
 
