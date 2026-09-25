@@ -2,149 +2,1017 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Crop Disease Detection</title>
+
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f0f4f0; text-align: center; padding: 50px; }
-        h1 { color: #2e7d32; }
-        .container { background: white; max-width: 500px; margin: 0 auto; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        input[type="file"], input[type="text"] { margin: 10px 0; width: 90%; padding: 8px; }
-        button { background-color: #2e7d32; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
-        button:hover { background-color: #1b5e20; }
-        #result, #chatSection { margin-top: 20px; font-size: 16px; text-align: left; }
-        #result h3 { margin-bottom: 4px; margin-top: 16px; }
-        #result ol { padding-left: 20px; margin-top: 6px; }
-        #result li { margin-bottom: 6px; }
-        img#preview { max-width: 100%; margin-top: 15px; border-radius: 8px; }
-        #chatSection { display: none; border-top: 1px solid #ddd; padding-top: 15px; }
-        #chatAnswer {
-            margin-top: 10px;
-            background: #f0f4f0;
-            padding: 16px 18px;
-            border-radius: 6px;
-            line-height: 1.6;
+
+        /* ================================
+           GLOBAL SETTINGS
+        ================================= */
+
+        * {
+            box-sizing: border-box;
         }
-        #chatAnswer h2, #chatAnswer h3 {
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at top left,
+                    rgba(76, 175, 80, 0.25),
+                    transparent 35%
+                ),
+                radial-gradient(
+                    circle at bottom right,
+                    rgba(27, 94, 32, 0.35),
+                    transparent 40%
+                ),
+                linear-gradient(
+                    135deg,
+                    #0b2e1a,
+                    #123d25 45%,
+                    #071d12
+                );
+
+            color: #1f2937;
+
+            padding: 35px 15px;
+        }
+
+
+        /* ================================
+           MAIN CONTAINER
+        ================================= */
+
+        .container {
+
+            width: 100%;
+            max-width: 560px;
+
+            margin: 0 auto;
+
+            background: rgba(255, 255, 255, 0.97);
+
+            border-radius: 24px;
+
+            padding: 28px 22px 30px;
+
+            box-shadow:
+                0 25px 60px rgba(0, 0, 0, 0.30);
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+
+        /* Decorative top line */
+
+        .container::before {
+
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            left: 0;
+            right: 0;
+
+            height: 6px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #1b5e20,
+                    #43a047,
+                    #81c784
+                );
+        }
+
+
+        /* ================================
+           HEADER
+        ================================= */
+
+        .header {
+
+            text-align: center;
+
+            margin-bottom: 25px;
+        }
+
+
+        .logo {
+
+            width: 62px;
+            height: 62px;
+
+            margin: 0 auto 12px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 18px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2e7d32,
+                    #66bb6a
+                );
+
+            color: white;
+
+            font-size: 32px;
+
+            box-shadow:
+                0 10px 25px rgba(46, 125, 50, 0.25);
+        }
+
+
+        h1 {
+
+            margin: 0;
+
+            color: #1b5e20;
+
+            font-size: 27px;
+
+            font-weight: 700;
+        }
+
+
+        .subtitle {
+
+            margin-top: 8px;
+
+            color: #6b7280;
+
+            font-size: 14px;
+
+            line-height: 1.5;
+        }
+
+
+        /* ================================
+           UPLOAD AREA
+        ================================= */
+
+        .upload-card {
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #f4fbf5,
+                    #edf7ee
+                );
+
+            border: 1px solid #d8ead9;
+
+            border-radius: 16px;
+
+            padding: 18px;
+
+            margin-bottom: 18px;
+        }
+
+
+        .upload-label {
+
+            display: block;
+
+            font-weight: 700;
+
+            color: #245b2a;
+
+            margin-bottom: 10px;
+
+            font-size: 15px;
+        }
+
+
+        input[type="file"] {
+
+            width: 100%;
+
+            padding: 12px;
+
+            background: white;
+
+            border: 1px solid #cddfd0;
+
+            border-radius: 10px;
+
+            font-size: 14px;
+
+            cursor: pointer;
+        }
+
+
+        input[type="file"]:focus {
+
+            outline: 2px solid #81c784;
+        }
+
+
+        /* ================================
+           IMAGE PREVIEW
+        ================================= */
+
+        .preview-wrapper {
+
+            margin-top: 18px;
+
+            text-align: center;
+        }
+
+
+        img#preview {
+
+            max-width: 100%;
+
+            max-height: 320px;
+
+            object-fit: contain;
+
+            border-radius: 16px;
+
+            border: 1px solid #d8e8da;
+
+            box-shadow:
+                0 8px 25px rgba(0, 0, 0, 0.10);
+        }
+
+
+        /* ================================
+           BUTTON
+        ================================= */
+
+        button {
+
+            width: 100%;
+
+            padding: 13px 20px;
+
+            margin-top: 10px;
+
+            border: none;
+
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2e7d32,
+                    #43a047
+                );
+
+            color: white;
+
+            font-size: 16px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.2s,
+                box-shadow 0.2s;
+        }
+
+
+        button:hover {
+
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 8px 18px rgba(46, 125, 50, 0.25);
+        }
+
+
+        button:active {
+
+            transform: translateY(0);
+        }
+
+
+        /* ================================
+           RESULT AREA
+        ================================= */
+
+        #result {
+
+            margin-top: 22px;
+
+            text-align: left;
+
+            font-size: 15px;
+        }
+
+
+        .result-card {
+
+            background: #ffffff;
+
+            border: 1px solid #dce9dd;
+
+            border-radius: 16px;
+
+            padding: 18px;
+
+            box-shadow:
+                0 8px 25px rgba(0, 0, 0, 0.06);
+        }
+
+
+        #result p {
+
+            line-height: 1.6;
+
+            margin: 9px 0;
+        }
+
+
+        #result strong {
+
+            color: #1b5e20;
+        }
+
+
+        #result h3 {
+
             color: #2e7d32;
+
+            font-size: 17px;
+
+            margin-top: 20px;
+
+            margin-bottom: 8px;
+
+            padding-bottom: 7px;
+
+            border-bottom: 1px solid #e1ebe2;
+        }
+
+
+        #result ol {
+
+            padding-left: 22px;
+
+            margin-top: 8px;
+        }
+
+
+        #result li {
+
+            margin-bottom: 9px;
+
+            line-height: 1.55;
+        }
+
+
+        /* ================================
+           CHAT SECTION
+        ================================= */
+
+        #chatSection {
+
+            display: none;
+
+            margin-top: 24px;
+
+            padding-top: 20px;
+
+            border-top: 1px solid #dce5dd;
+
+            text-align: left;
+        }
+
+
+        #chatSection > h3 {
+
+            margin: 0 0 12px;
+
+            color: #1b5e20;
+
+            font-size: 18px;
+        }
+
+
+        #chatInput {
+
+            width: 100%;
+
+            padding: 13px 14px;
+
+            border: 1px solid #cfded1;
+
+            border-radius: 10px;
+
+            font-size: 14px;
+
+            background: #fafdfb;
+        }
+
+
+        #chatInput:focus {
+
+            outline: none;
+
+            border-color: #43a047;
+
+            box-shadow:
+                0 0 0 3px rgba(67, 160, 71, 0.12);
+        }
+
+
+        /* ================================
+           CHAT ANSWER
+        ================================= */
+
+        #chatAnswer {
+
             margin-top: 16px;
-            margin-bottom: 6px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #f1f8f2,
+                    #eaf5eb
+                );
+
+            border: 1px solid #d5e7d7;
+
+            padding: 18px;
+
+            border-radius: 14px;
+
+            line-height: 1.7;
+
+            color: #27352a;
+
+            font-size: 14px;
+        }
+
+
+        #chatAnswer h2,
+        #chatAnswer h3 {
+
+            color: #2e7d32;
+
+            margin-top: 18px;
+
+            margin-bottom: 8px;
+
             font-size: 17px;
         }
-        #chatAnswer h2:first-child, #chatAnswer h3:first-child {
+
+
+        #chatAnswer h2:first-child,
+        #chatAnswer h3:first-child {
+
             margin-top: 0;
         }
+
+
+        #chatAnswer h4 {
+
+            color: #388e3c;
+
+            margin-top: 16px;
+
+            margin-bottom: 7px;
+        }
+
+
         #chatAnswer p {
-            margin-bottom: 12px;
+
+            margin-bottom: 13px;
         }
-        #chatAnswer ul, #chatAnswer ol {
-            padding-left: 20px;
-            margin-bottom: 12px;
+
+
+        #chatAnswer ul,
+        #chatAnswer ol {
+
+            padding-left: 22px;
+
+            margin-bottom: 14px;
         }
+
+
         #chatAnswer li {
-            margin-bottom: 6px;
+
+            margin-bottom: 8px;
+
+            line-height: 1.6;
         }
+
+
+        #chatAnswer strong {
+
+            color: #1f5e27;
+        }
+
+
+        /* ================================
+           STATUS MESSAGE
+        ================================= */
+
+        .loading {
+
+            text-align: center;
+
+            padding: 15px;
+
+            color: #2e7d32;
+
+            font-weight: 600;
+        }
+
+
+        .error {
+
+            background: #fff1f1;
+
+            color: #b42318;
+
+            border: 1px solid #f0caca;
+
+            padding: 12px;
+
+            border-radius: 10px;
+
+            line-height: 1.5;
+        }
+
+
+        /* ================================
+           FOOTER
+        ================================= */
+
+        .footer {
+
+            text-align: center;
+
+            margin-top: 22px;
+
+            color: #8a948b;
+
+            font-size: 12px;
+        }
+
+
+        /* ================================
+           MOBILE
+        ================================= */
+
+        @media (max-width: 600px) {
+
+            body {
+
+                padding: 18px 10px;
+            }
+
+
+            .container {
+
+                border-radius: 20px;
+
+                padding: 24px 17px 25px;
+            }
+
+
+            h1 {
+
+                font-size: 23px;
+            }
+
+
+            .logo {
+
+                width: 55px;
+                height: 55px;
+
+                font-size: 28px;
+            }
+
+
+            #chatAnswer {
+
+                padding: 15px;
+            }
+        }
+
     </style>
 </head>
+
+
 <body>
+
     <div class="container">
-        <h1>🌱 Crop Disease Detection</h1>
-        <p>Upload a leaf image to detect the disease</p>
-        <input type="file" id="imageInput" accept="image/*">
-        <br>
-        <img id="preview" style="display:none;">
-        <br>
-        <button onclick="predict()">Predict</button>
+
+        <!-- HEADER -->
+
+        <div class="header">
+
+            <div class="logo">
+                🌱
+            </div>
+
+            <h1>
+                Crop Disease Detection
+            </h1>
+
+            <div class="subtitle">
+                Upload a crop leaf image to identify possible
+                diseases and receive management guidance.
+            </div>
+
+        </div>
+
+
+        <!-- UPLOAD -->
+
+        <div class="upload-card">
+
+            <label class="upload-label">
+                📷 Upload Leaf Image
+            </label>
+
+            <input
+                type="file"
+                id="imageInput"
+                accept="image/*"
+            >
+
+            <div class="preview-wrapper">
+
+                <img
+                    id="preview"
+                    style="display:none;"
+                    alt="Selected leaf image"
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- PREDICT -->
+
+        <button onclick="predict()">
+            🔍 Predict Disease
+        </button>
+
+
+        <!-- RESULT -->
+
         <div id="result"></div>
 
+
+        <!-- CHAT -->
+
         <div id="chatSection">
-            <h3>Have a question about this diagnosis?</h3>
-            <input type="text" id="chatInput" placeholder="e.g. Is this safe for my other plants?">
-            <br>
-            <button onclick="askQuestion()">Ask</button>
+
+            <h3>
+                💬 Have a question about this diagnosis?
+            </h3>
+
+            <input
+                type="text"
+                id="chatInput"
+                placeholder="e.g. What is a fungicide?"
+            >
+
+            <button onclick="askQuestion()">
+                Ask Question
+            </button>
+
             <div id="chatAnswer"></div>
+
         </div>
+
+
+        <div class="footer">
+            Intelligent Crop Disease Detection & Management System
+        </div>
+
     </div>
+
+
     <script>
-        const imageInput = document.getElementById('imageInput');
-        const preview = document.getElementById('preview');
-        const resultDiv = document.getElementById('result');
-        const chatSection = document.getElementById('chatSection');
-        const chatInput = document.getElementById('chatInput');
-        const chatAnswer = document.getElementById('chatAnswer');
+
+        const imageInput =
+            document.getElementById('imageInput');
+
+        const preview =
+            document.getElementById('preview');
+
+        const resultDiv =
+            document.getElementById('result');
+
+        const chatSection =
+            document.getElementById('chatSection');
+
+        const chatInput =
+            document.getElementById('chatInput');
+
+        const chatAnswer =
+            document.getElementById('chatAnswer');
+
         let currentDisease = '';
 
+
+        /* ================================
+           RESET RESULTS
+        ================================= */
+
         function resetResults() {
+
             resultDiv.innerHTML = '';
+
             chatSection.style.display = 'none';
+
             chatInput.value = '';
+
             chatAnswer.innerHTML = '';
+
             currentDisease = '';
         }
 
-        imageInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                preview.src = URL.createObjectURL(file);
-                preview.style.display = 'block';
+
+        /* ================================
+           IMAGE PREVIEW
+        ================================= */
+
+        imageInput.addEventListener(
+            'change',
+            function() {
+
+                const file = this.files[0];
+
+                if (file) {
+
+                    preview.src =
+                        URL.createObjectURL(file);
+
+                    preview.style.display =
+                        'block';
+                }
+
+                resetResults();
+
             }
-            resetResults();
-        });
+        );
+
+
+        /* ================================
+           PREDICT DISEASE
+        ================================= */
 
         function predict() {
-            const file = imageInput.files[0];
+
+            const file =
+                imageInput.files[0];
+
             if (!file) {
-                resultDiv.innerHTML = "<p style='color:red;'>Please select an image first.</p>";
+
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        Please select an image first.
+                    </div>
+                `;
+
                 return;
             }
+
+
             resetResults();
-            resultDiv.innerHTML = "<p>Analyzing...</p>";
-            const formData = new FormData();
-            formData.append('file', file);
-            fetch('/predict', { method: 'POST', body: formData })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    resultDiv.innerHTML = `<p style='color:red;'>${data.error}</p>`;
-                } else {
-                    currentDisease = data.disease;
-                    const stepsHtml = data.recommendation_steps.map(step => `<li>${step}</li>`).join('');
-                    resultDiv.innerHTML = `
-                        <p><strong>Disease Detected:</strong> ${data.disease}</p>
-                        <p><strong>Confidence:</strong> ${data.confidence}</p>
-                        <h3>Symptoms</h3>
-                        <p>${data.symptoms}</p>
-                        <h3>Recommended Pesticide &amp; Management Steps</h3>
-                        <ol>${stepsHtml}</ol>
-                    `;
-                    chatSection.style.display = 'block';
-                }
+
+
+            resultDiv.innerHTML = `
+                <div class="loading">
+                    🔄 Analyzing leaf image...
+                </div>
+            `;
+
+
+            const formData =
+                new FormData();
+
+            formData.append(
+                'file',
+                file
+            );
+
+
+            fetch('/predict', {
+
+                method: 'POST',
+
+                body: formData
+
             })
+
+            .then(
+                response =>
+                    response.json()
+            )
+
+            .then(data => {
+
+                if (data.error) {
+
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            ${data.error}
+                        </div>
+                    `;
+
+                } else {
+
+                    currentDisease =
+                        data.disease;
+
+
+                    const stepsHtml =
+                        data.recommendation_steps
+                        .map(
+                            step =>
+                                `<li>${step}</li>`
+                        )
+                        .join('');
+
+
+                    /*
+                     * IMPORTANT:
+                     * These are the same information
+                     * already documented in Chapter Three.
+                     */
+
+                    resultDiv.innerHTML = `
+
+                        <div class="result-card">
+
+                            <p>
+                                <strong>
+                                    Disease Detected:
+                                </strong>
+                                ${data.disease}
+                            </p>
+
+
+                            <p>
+                                <strong>
+                                    Confidence:
+                                </strong>
+                                ${data.confidence}
+                            </p>
+
+
+                            <h3>
+                                Symptoms
+                            </h3>
+
+                            <p>
+                                ${data.symptoms}
+                            </p>
+
+
+                            <h3>
+                                Recommended Pesticide
+                                &amp;
+                                Management Steps
+                            </h3>
+
+                            <ol>
+                                ${stepsHtml}
+                            </ol>
+
+                        </div>
+
+                    `;
+
+
+                    chatSection.style.display =
+                        'block';
+                }
+
+            })
+
             .catch(err => {
-                resultDiv.innerHTML = "<p style='color:red;'>Error connecting to server.</p>";
+
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        Error connecting to server.
+                    </div>
+                `;
+
             });
+
         }
 
+
+        /* ================================
+           ASK QUESTION
+        ================================= */
+
         function askQuestion() {
-            const question = chatInput.value;
-            if (!question) return;
-            chatAnswer.innerHTML = "<p>Thinking...</p>";
+
+            const question =
+                chatInput.value.trim();
+
+
+            if (!question)
+                return;
+
+
+            chatAnswer.innerHTML = `
+                <div class="loading">
+                    🤔 Thinking...
+                </div>
+            `;
+
+
             fetch('/chat', {
+
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ disease: currentDisease, question: question })
+
+                headers: {
+                    'Content-Type':
+                        'application/json'
+                },
+
+                body: JSON.stringify({
+
+                    disease:
+                        currentDisease,
+
+                    question:
+                        question
+
+                })
+
             })
-            .then(response => response.json())
+
+            .then(
+                response =>
+                    response.json()
+            )
+
             .then(data => {
+
                 if (data.error) {
-                    chatAnswer.innerHTML = `<p style='color:red;'>${data.error}</p>`;
+
+                    chatAnswer.innerHTML = `
+                        <div class="error">
+                            ${data.error}
+                        </div>
+                    `;
+
                 } else {
-                    chatAnswer.innerHTML = marked.parse(data.answer);
+
+                    /*
+                     * marked.js keeps the AI response
+                     * properly formatted into headings,
+                     * paragraphs, bullets and lists.
+                     */
+
+                    chatAnswer.innerHTML =
+                        marked.parse(
+                            data.answer
+                        );
+
                 }
+
             })
+
             .catch(err => {
-                chatAnswer.innerHTML = "<p style='color:red;'>Error connecting to server.</p>";
+
+                chatAnswer.innerHTML = `
+                    <div class="error">
+                        Error connecting to server.
+                    </div>
+                `;
+
             });
+
         }
+
     </script>
+
 </body>
-    </html>
+                </html>
