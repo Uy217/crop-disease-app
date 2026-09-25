@@ -1,150 +1,421 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Crop Disease Detection</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f0f4f0; text-align: center; padding: 50px; }
-        h1 { color: #2e7d32; }
-        .container { background: white; max-width: 500px; margin: 0 auto; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        input[type="file"], input[type="text"] { margin: 10px 0; width: 90%; padding: 8px; }
-        button { background-color: #2e7d32; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
-        button:hover { background-color: #1b5e20; }
-        #result, #chatSection { margin-top: 20px; font-size: 16px; text-align: left; }
-        #result h3 { margin-bottom: 4px; margin-top: 16px; }
-        #result ol { padding-left: 20px; margin-top: 6px; }
-        #result li { margin-bottom: 6px; }
-        img#preview { max-width: 100%; margin-top: 15px; border-radius: 8px; }
-        #chatSection { display: none; border-top: 1px solid #ddd; padding-top: 15px; }
-        #chatAnswer {
-            margin-top: 10px;
-            background: #f0f4f0;
-            padding: 16px 18px;
-            border-radius: 6px;
-            line-height: 1.6;
-        }
-        #chatAnswer h2, #chatAnswer h3 {
-            color: #2e7d32;
-            margin-top: 16px;
-            margin-bottom: 6px;
-            font-size: 17px;
-        }
-        #chatAnswer h2:first-child, #chatAnswer h3:first-child {
-            margin-top: 0;
-        }
-        #chatAnswer p {
-            margin-bottom: 12px;
-        }
-        #chatAnswer ul, #chatAnswer ol {
-            padding-left: 20px;
-            margin-bottom: 12px;
-        }
-        #chatAnswer li {
-            margin-bottom: 6px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgroScope — Crop Disease & Pesticide Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<style>
+  :root {
+    --paper: #F7F5EF;
+    --panel: #FBFAF6;
+    --ink: #241F18;
+    --ink-soft: #5A5346;
+    --rule: #D9D3C4;
+    --leaf: #2F4B32;
+    --leaf-soft: #E8EDE6;
+    --ochre: #C97C2B;
+    --ochre-soft: #FBF0E1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Work Sans', sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+  header {
+    border-bottom: 1.5px solid var(--ink);
+    padding-bottom: 16px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .brand svg { flex-shrink: 0; transform: translateY(3px); }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 22px;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .tagline {
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-align: right;
+  }
+
+  .upload-section { margin-bottom: 8px; }
+  .field-label {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+
+  .dropzone {
+    border: 1.5px dashed var(--rule);
+    border-radius: 4px;
+    background: var(--panel);
+    padding: 36px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+  .dropzone:hover, .dropzone.has-image { border-color: var(--leaf); }
+  .dropzone svg { opacity: 0.55; margin-bottom: 10px; }
+  .dropzone p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+  .dropzone p strong { color: var(--leaf); font-weight: 500; }
+  #imageInput { display: none; }
+
+  #preview {
+    max-width: 100%;
+    max-height: 260px;
+    border-radius: 3px;
+    display: none;
+  }
+
+  button.primary {
+    width: 100%;
+    background: var(--leaf);
+    color: var(--paper);
+    border: none;
+    padding: 13px;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: background 0.15s ease;
+  }
+  button.primary:hover { background: #24391f; }
+  button.primary:disabled { background: var(--rule); cursor: default; }
+
+  #result { margin-top: 40px; }
+  .report {
+    display: none;
+  }
+  .report-head {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .report-thumb {
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .disease-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 26px;
+    line-height: 1.15;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  .confidence-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .confidence-track {
+    flex: 1;
+    max-width: 140px;
+    height: 5px;
+    background: var(--rule);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .confidence-fill {
+    height: 100%;
+    background: var(--leaf);
+    border-radius: 3px;
+  }
+  .confidence-num {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .low-confidence {
+    background: var(--ochre-soft);
+    border-left: 3px solid var(--ochre);
+    padding: 12px 14px;
+    font-size: 13.5px;
+    color: #7A4A16;
+    margin: 18px 0;
+    border-radius: 0 3px 3px 0;
+  }
+
+  .section-rule {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 24px 0 16px;
+  }
+  .section-label {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--leaf);
+    margin: 0 0 10px;
+  }
+  .symptom-text {
+    font-size: 14.5px;
+    color: var(--ink);
+    margin: 0;
+  }
+  .steps {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 14.5px;
+  }
+  .steps li { margin-bottom: 8px; }
+  .steps li:last-child { margin-bottom: 0; }
+
+  .chat-section { margin-top: 8px; }
+  .chat-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  #chatInput {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 14px;
+    background: var(--panel);
+    color: var(--ink);
+  }
+  #chatInput:focus { outline: 2px solid var(--leaf); outline-offset: 1px; }
+  button.ask {
+    background: var(--panel);
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    padding: 0 18px;
+    border-radius: 3px;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  button.ask:hover { background: var(--leaf-soft); }
+
+  #chatAnswer {
+    margin-top: 14px;
+    font-size: 14px;
+  }
+  #chatAnswer p:first-child { margin-top: 0; }
+  #chatAnswer:empty { display: none; }
+  .field-note {
+    background: var(--panel);
+    border-left: 3px solid var(--leaf);
+    padding: 12px 14px;
+    border-radius: 0 3px 3px 0;
+  }
+
+  .status-text { font-size: 13.5px; color: var(--ink-soft); }
+  .error-text { font-size: 13.5px; color: #A13A2E; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>🌱 Crop Disease Detection</h1>
-        <p>Upload a leaf image to detect the disease</p>
-        <input type="file" id="imageInput" accept="image/*">
-        <br>
-        <img id="preview" style="display:none;">
-        <br>
-        <button onclick="predict()">Predict</button>
-        <div id="result"></div>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2C12 2 5 6 5 13C5 17.4183 8.13401 21 12 21C15.866 21 19 17.4183 19 13C19 6 12 2 12 2Z" stroke="#2F4B32" stroke-width="1.5"/>
+          <path d="M12 21V8" stroke="#2F4B32" stroke-width="1.5"/>
+        </svg>
+        <h1>AgroScope</h1>
+      </div>
+      <div class="tagline">Crop disease &amp; pesticide guide</div>
+    </header>
 
-        <div id="chatSection">
-            <h3>Have a question about this diagnosis?</h3>
-            <input type="text" id="chatInput" placeholder="e.g. Is this safe for my other plants?">
-            <br>
-            <button onclick="askQuestion()">Ask</button>
-            <div id="chatAnswer"></div>
+    <div class="upload-section">
+      <div class="field-label">Upload a leaf photo</div>
+      <label class="dropzone" id="dropzone" for="imageInput">
+        <div id="dropzoneEmpty">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+            <path d="M4 16V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V16" stroke="#5A5346" stroke-width="1.4" stroke-linecap="round"/>
+            <path d="M12 15V4M12 4L8 8M12 4L16 8" stroke="#5A5346" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <p><strong>Choose a photo</strong> of the affected leaf</p>
         </div>
+        <img id="preview" alt="Selected leaf">
+      </label>
+      <input type="file" id="imageInput" accept="image/*">
+      <button class="primary" id="predictBtn" onclick="predict()" disabled>Diagnose leaf</button>
+      <p id="statusMsg" class="status-text" style="margin-top:10px;"></p>
     </div>
-    <script>
-        const imageInput = document.getElementById('imageInput');
-        const preview = document.getElementById('preview');
-        const resultDiv = document.getElementById('result');
-        const chatSection = document.getElementById('chatSection');
-        const chatInput = document.getElementById('chatInput');
-        const chatAnswer = document.getElementById('chatAnswer');
-        let currentDisease = '';
 
-        function resetResults() {
-            resultDiv.innerHTML = '';
-            chatSection.style.display = 'none';
-            chatInput.value = '';
-            chatAnswer.innerHTML = '';
-            currentDisease = '';
+    <div id="result">
+      <div class="report" id="report">
+        <div class="report-head">
+          <img class="report-thumb" id="reportThumb" alt="">
+          <div>
+            <p class="disease-name" id="diseaseName"></p>
+            <div class="confidence-row">
+              <div class="confidence-track"><div class="confidence-fill" id="confidenceFill"></div></div>
+              <span class="confidence-num" id="confidenceNum"></span>
+            </div>
+          </div>
+        </div>
+
+        <div id="lowConfidenceBox"></div>
+
+        <hr class="section-rule">
+        <p class="section-label">Symptoms</p>
+        <p class="symptom-text" id="symptomText"></p>
+
+        <hr class="section-rule">
+        <p class="section-label">Recommended pesticide &amp; management</p>
+        <ol class="steps" id="stepsList"></ol>
+
+        <hr class="section-rule">
+        <div class="chat-section">
+          <p class="section-label">Ask about this diagnosis</p>
+          <div class="chat-row">
+            <input type="text" id="chatInput" placeholder="e.g. Is this safe for nearby plants?">
+            <button class="ask" onclick="askQuestion()">Ask</button>
+          </div>
+          <div id="chatAnswer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const imageInput = document.getElementById('imageInput');
+  const dropzone = document.getElementById('dropzone');
+  const dropzoneEmpty = document.getElementById('dropzoneEmpty');
+  const preview = document.getElementById('preview');
+  const predictBtn = document.getElementById('predictBtn');
+  const statusMsg = document.getElementById('statusMsg');
+  const report = document.getElementById('report');
+  const chatAnswer = document.getElementById('chatAnswer');
+  let currentDisease = '';
+  let currentImageURL = '';
+
+  imageInput.addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+      currentImageURL = URL.createObjectURL(file);
+      preview.src = currentImageURL;
+      preview.style.display = 'block';
+      dropzoneEmpty.style.display = 'none';
+      dropzone.classList.add('has-image');
+      predictBtn.disabled = false;
+      statusMsg.textContent = '';
+      report.style.display = 'none';
+      chatAnswer.innerHTML = '';
+    }
+  });
+
+  function predict() {
+    const file = imageInput.files[0];
+    if (!file) return;
+
+    predictBtn.disabled = true;
+    statusMsg.className = 'status-text';
+    statusMsg.textContent = 'Analyzing leaf…';
+    report.style.display = 'none';
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    fetch('/predict', { method: 'POST', body: formData })
+      .then(response => response.json())
+      .then(data => {
+        predictBtn.disabled = false;
+        if (data.error) {
+          statusMsg.className = 'error-text';
+          statusMsg.textContent = data.error;
+          return;
+        }
+        statusMsg.textContent = '';
+        currentDisease = data.disease;
+
+        document.getElementById('reportThumb').src = currentImageURL;
+        document.getElementById('diseaseName').textContent = data.disease.replace(/_/g, ' ').replace(/,/g, ',');
+        document.getElementById('confidenceNum').textContent = data.confidence;
+        const pct = parseFloat(data.confidence);
+        document.getElementById('confidenceFill').style.width = Math.min(pct, 100) + '%';
+
+        const lowBox = document.getElementById('lowConfidenceBox');
+        if (data.low_confidence) {
+          lowBox.innerHTML = '<div class="low-confidence">This result has lower certainty than usual. Consider a clearer, well-lit photo for a more reliable reading.</div>';
+        } else {
+          lowBox.innerHTML = '';
         }
 
-        imageInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                preview.src = URL.createObjectURL(file);
-                preview.style.display = 'block';
-            }
-            resetResults();
-        });
+        document.getElementById('symptomText').textContent = data.symptoms;
 
-        function predict() {
-            const file = imageInput.files[0];
-            if (!file) {
-                resultDiv.innerHTML = "<p style='color:red;'>Please select an image first.</p>";
-                return;
-            }
-            resetResults();
-            resultDiv.innerHTML = "<p>Analyzing...</p>";
-            const formData = new FormData();
-            formData.append('file', file);
-            fetch('/predict', { method: 'POST', body: formData })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    resultDiv.innerHTML = `<p style='color:red;'>${data.error}</p>`;
-                } else {
-                    currentDisease = data.disease;
-                    const stepsHtml = data.recommendation_steps.map(step => `<li>${step}</li>`).join('');
-                    resultDiv.innerHTML = `
-                        <p><strong>Disease Detected:</strong> ${data.disease}</p>
-                        <p><strong>Confidence:</strong> ${data.confidence}</p>
-                        <h3>Symptoms</h3>
-                        <p>${data.symptoms}</p>
-                        <h3>Recommended Pesticide &amp; Management Steps</h3>
-                        <ol>${stepsHtml}</ol>
-                    `;
-                    chatSection.style.display = 'block';
-                }
-            })
-            .catch(err => {
-                resultDiv.innerHTML = "<p style='color:red;'>Error connecting to server.</p>";
-            });
-        }
+        const stepsList = document.getElementById('stepsList');
+        stepsList.innerHTML = data.recommendation_steps.map(s => `<li>${s}</li>`).join('');
 
-        function askQuestion() {
-            const question = chatInput.value;
-            if (!question) return;
-            chatAnswer.innerHTML = "<p>Thinking...</p>";
-            fetch('/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ disease: currentDisease, question: question })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    chatAnswer.innerHTML = `<p style='color:red;'>${data.error}</p>`;
-                } else {
-                    chatAnswer.innerHTML = marked.parse(data.answer);
-                }
-            })
-            .catch(err => {
-                chatAnswer.innerHTML = "<p style='color:red;'>Error connecting to server.</p>";
-            });
+        chatAnswer.innerHTML = '';
+        document.getElementById('chatInput').value = '';
+        report.style.display = 'block';
+      })
+      .catch(() => {
+        predictBtn.disabled = false;
+        statusMsg.className = 'error-text';
+        statusMsg.textContent = 'Could not reach the server. Please try again.';
+      });
+  }
+
+  function askQuestion() {
+    const input = document.getElementById('chatInput');
+    const question = input.value.trim();
+    if (!question) return;
+
+    chatAnswer.innerHTML = '<p class="status-text">Thinking…</p>';
+
+    fetch('/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ disease: currentDisease, question: question })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          chatAnswer.innerHTML = `<p class="error-text">${data.error}</p>`;
+        } else {
+          const html = (typeof marked !== 'undefined') ? marked.parse(data.answer) : data.answer;
+          chatAnswer.innerHTML = `<div class="field-note">${html}</div>`;
         }
-    </script>
+      })
+      .catch(() => {
+        chatAnswer.innerHTML = '<p class="error-text">Could not reach the server. Please try again.</p>';
+      });
+  }
+</script>
 </body>
-</html>
+                </html>
