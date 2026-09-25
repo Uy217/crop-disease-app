@@ -3,615 +3,673 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b3d20">
 
     <title>Crop Disease Detection</title>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
-
-        /* ================================
-           GLOBAL SETTINGS
-        ================================= */
+        /* =========================================
+           RESET
+        ========================================= */
 
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
 
+        html {
+            min-height: 100%;
+        }
+
         body {
-            margin: 0;
             min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #183322;
 
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
+            /* FULL PAGE GREEN BACKGROUND */
             background:
                 radial-gradient(
-                    circle at top left,
-                    rgba(76, 175, 80, 0.25),
-                    transparent 35%
+                    circle at 10% 10%,
+                    rgba(129, 199, 132, 0.35),
+                    transparent 28%
                 ),
                 radial-gradient(
-                    circle at bottom right,
-                    rgba(27, 94, 32, 0.35),
-                    transparent 40%
+                    circle at 90% 90%,
+                    rgba(67, 160, 71, 0.35),
+                    transparent 30%
                 ),
                 linear-gradient(
                     135deg,
-                    #0b2e1a,
-                    #123d25 45%,
-                    #071d12
+                    #062914 0%,
+                    #0b4d26 48%,
+                    #031b0d 100%
                 );
 
-            color: #1f2937;
-
-            padding: 35px 15px;
+            padding: 25px 14px 40px;
         }
 
 
-        /* ================================
-           MAIN CONTAINER
-        ================================= */
+        /* =========================================
+           BACKGROUND DECORATION
+        ========================================= */
 
-        .container {
-
-            width: 100%;
-            max-width: 560px;
-
-            margin: 0 auto;
-
-            background: rgba(255, 255, 255, 0.97);
-
-            border-radius: 24px;
-
-            padding: 28px 22px 30px;
-
-            box-shadow:
-                0 25px 60px rgba(0, 0, 0, 0.30);
-
-            position: relative;
-
-            overflow: hidden;
-        }
-
-
-        /* Decorative top line */
-
-        .container::before {
-
+        body::before {
             content: "";
+            position: fixed;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: rgba(129, 199, 132, 0.08);
+            top: -100px;
+            left: -100px;
+            pointer-events: none;
+        }
 
-            position: absolute;
-
-            top: 0;
-            left: 0;
-            right: 0;
-
-            height: 6px;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    #1b5e20,
-                    #43a047,
-                    #81c784
-                );
+        body::after {
+            content: "";
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: rgba(76, 175, 80, 0.08);
+            bottom: -150px;
+            right: -120px;
+            pointer-events: none;
         }
 
 
-        /* ================================
+        /* =========================================
+           MAIN APP
+        ========================================= */
+
+        .app {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+
+        /* =========================================
            HEADER
-        ================================= */
+        ========================================= */
 
         .header {
-
             text-align: center;
-
-            margin-bottom: 25px;
+            color: white;
+            margin-bottom: 20px;
         }
 
-
-        .logo {
-
-            width: 62px;
-            height: 62px;
-
+        .header-icon {
+            width: 72px;
+            height: 72px;
             margin: 0 auto 12px;
 
             display: flex;
-
             align-items: center;
             justify-content: center;
 
-            border-radius: 18px;
+            background: rgba(255,255,255,0.14);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 22px;
 
-            background:
-                linear-gradient(
-                    135deg,
-                    #2e7d32,
-                    #66bb6a
-                );
-
-            color: white;
-
-            font-size: 32px;
+            font-size: 38px;
 
             box-shadow:
-                0 10px 25px rgba(46, 125, 50, 0.25);
+                0 12px 35px rgba(0,0,0,0.25);
+
+            backdrop-filter: blur(10px);
         }
 
-
-        h1 {
-
-            margin: 0;
-
-            color: #1b5e20;
-
+        .header h1 {
             font-size: 27px;
-
-            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 8px;
+            color: white;
         }
 
-
-        .subtitle {
-
-            margin-top: 8px;
-
-            color: #6b7280;
-
+        .header p {
+            color: rgba(255,255,255,0.78);
             font-size: 14px;
-
             line-height: 1.5;
         }
 
 
-        /* ================================
-           UPLOAD AREA
-        ================================= */
+        /* =========================================
+           MAIN WHITE PANEL
+        ========================================= */
 
-        .upload-card {
+        .main-card {
+            background: #ffffff;
+            border-radius: 26px;
+            padding: 20px;
 
+            box-shadow:
+                0 25px 70px rgba(0,0,0,0.30);
+
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+
+        /* =========================================
+           UPLOAD SECTION
+        ========================================= */
+
+        .upload-section {
             background:
                 linear-gradient(
                     145deg,
-                    #f4fbf5,
-                    #edf7ee
+                    #eff9f0,
+                    #e5f4e7
                 );
 
-            border: 1px solid #d8ead9;
-
-            border-radius: 16px;
+            border: 1px solid #cfe5d1;
+            border-radius: 18px;
 
             padding: 18px;
+        }
 
-            margin-bottom: 18px;
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
+            color: #155d25;
+            font-size: 16px;
+            font-weight: bold;
+
+            margin-bottom: 13px;
+        }
+
+        .section-icon {
+            width: 32px;
+            height: 32px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 10px;
+
+            background: #2e7d32;
+            color: white;
         }
 
 
-        .upload-label {
-
-            display: block;
-
-            font-weight: 700;
-
-            color: #245b2a;
-
-            margin-bottom: 10px;
-
-            font-size: 15px;
-        }
-
+        /* =========================================
+           FILE INPUT
+        ========================================= */
 
         input[type="file"] {
-
             width: 100%;
 
             padding: 12px;
 
             background: white;
 
-            border: 1px solid #cddfd0;
+            border: 2px dashed #9bc89f;
+            border-radius: 13px;
 
-            border-radius: 10px;
+            color: #4b6350;
 
             font-size: 14px;
 
             cursor: pointer;
         }
 
-
-        input[type="file"]:focus {
-
-            outline: 2px solid #81c784;
+        input[type="file"]:hover {
+            border-color: #43a047;
+            background: #fbfffb;
         }
 
 
-        /* ================================
-           IMAGE PREVIEW
-        ================================= */
+        /* =========================================
+           PREVIEW
+        ========================================= */
 
-        .preview-wrapper {
+        .preview-box {
+            display: none;
 
-            margin-top: 18px;
+            margin-top: 15px;
+
+            padding: 10px;
+
+            background: white;
+
+            border-radius: 15px;
+
+            border: 1px solid #d6e7d8;
 
             text-align: center;
         }
 
-
         img#preview {
+            display: block;
 
-            max-width: 100%;
-
-            max-height: 320px;
+            width: 100%;
+            max-height: 300px;
 
             object-fit: contain;
 
-            border-radius: 16px;
-
-            border: 1px solid #d8e8da;
-
-            box-shadow:
-                0 8px 25px rgba(0, 0, 0, 0.10);
+            border-radius: 11px;
         }
 
 
-        /* ================================
-           BUTTON
-        ================================= */
+        /* =========================================
+           PREDICT BUTTON
+        ========================================= */
 
-        button {
-
+        .predict-btn {
             width: 100%;
 
-            padding: 13px 20px;
+            margin-top: 16px;
 
-            margin-top: 10px;
+            padding: 15px 20px;
 
             border: none;
-
-            border-radius: 11px;
+            border-radius: 13px;
 
             background:
                 linear-gradient(
                     135deg,
-                    #2e7d32,
+                    #1b5e20,
                     #43a047
                 );
 
             color: white;
 
             font-size: 16px;
-
-            font-weight: 700;
+            font-weight: bold;
 
             cursor: pointer;
 
-            transition:
-                transform 0.2s,
-                box-shadow 0.2s;
+            box-shadow:
+                0 8px 20px rgba(46,125,50,0.25);
+
+            transition: all 0.2s ease;
         }
 
-
-        button:hover {
-
-            transform: translateY(-1px);
+        .predict-btn:hover {
+            transform: translateY(-2px);
 
             box-shadow:
-                0 8px 18px rgba(46, 125, 50, 0.25);
+                0 12px 25px rgba(46,125,50,0.32);
         }
 
-
-        button:active {
-
+        .predict-btn:active {
             transform: translateY(0);
         }
 
 
-        /* ================================
-           RESULT AREA
-        ================================= */
+        /* =========================================
+           RESULT
+        ========================================= */
 
         #result {
-
-            margin-top: 22px;
-
-            text-align: left;
-
-            font-size: 15px;
+            margin-top: 20px;
         }
-
 
         .result-card {
-
             background: #ffffff;
 
-            border: 1px solid #dce9dd;
+            border-radius: 18px;
 
-            border-radius: 16px;
+            border: 1px solid #d8e8da;
 
-            padding: 18px;
+            overflow: hidden;
 
             box-shadow:
-                0 8px 25px rgba(0, 0, 0, 0.06);
+                0 7px 25px rgba(0,0,0,0.07);
         }
 
+        .result-header {
+            padding: 15px 17px;
 
-        #result p {
+            background:
+                linear-gradient(
+                    135deg,
+                    #e7f5e9,
+                    #dff1e1
+                );
 
-            line-height: 1.6;
+            border-bottom: 1px solid #cfe3d1;
 
-            margin: 9px 0;
+            color: #155d25;
+
+            font-weight: bold;
         }
 
-
-        #result strong {
-
-            color: #1b5e20;
+        .result-body {
+            padding: 17px;
         }
 
+        .result-row {
+            padding: 11px 0;
 
-        #result h3 {
-
-            color: #2e7d32;
-
-            font-size: 17px;
-
-            margin-top: 20px;
-
-            margin-bottom: 8px;
-
-            padding-bottom: 7px;
-
-            border-bottom: 1px solid #e1ebe2;
-        }
-
-
-        #result ol {
-
-            padding-left: 22px;
-
-            margin-top: 8px;
-        }
-
-
-        #result li {
-
-            margin-bottom: 9px;
+            border-bottom: 1px solid #edf2ed;
 
             line-height: 1.55;
         }
 
+        .result-row:last-child {
+            border-bottom: none;
+        }
 
-        /* ================================
+        .result-label {
+            display: block;
+
+            color: #6a786c;
+
+            font-size: 12px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.5px;
+
+            margin-bottom: 3px;
+        }
+
+        .result-value {
+            color: #193a20;
+            font-weight: 600;
+        }
+
+
+        /* =========================================
+           RESULT HEADINGS
+        ========================================= */
+
+        #result h3 {
+            margin-top: 20px;
+            margin-bottom: 9px;
+
+            color: #216b2c;
+
+            font-size: 17px;
+
+            padding-left: 10px;
+
+            border-left: 4px solid #43a047;
+        }
+
+        #result p {
+            line-height: 1.65;
+            margin-bottom: 9px;
+        }
+
+        #result ol {
+            padding-left: 22px;
+            margin-top: 7px;
+        }
+
+        #result li {
+            margin-bottom: 9px;
+            line-height: 1.55;
+        }
+
+
+        /* =========================================
            CHAT SECTION
-        ================================= */
+        ========================================= */
 
         #chatSection {
-
             display: none;
 
-            margin-top: 24px;
+            margin-top: 22px;
 
             padding-top: 20px;
 
-            border-top: 1px solid #dce5dd;
+            border-top: 1px solid #e0e7e1;
+        }
 
-            text-align: left;
+        .chat-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+
+            color: #155d25;
+
+            font-size: 17px;
+
+            margin-bottom: 12px;
+        }
+
+        .chat-icon {
+            width: 34px;
+            height: 34px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #e7f5e9;
+
+            border-radius: 10px;
         }
 
 
-        #chatSection > h3 {
-
-            margin: 0 0 12px;
-
-            color: #1b5e20;
-
-            font-size: 18px;
-        }
-
+        /* =========================================
+           CHAT INPUT
+        ========================================= */
 
         #chatInput {
-
             width: 100%;
 
             padding: 13px 14px;
 
-            border: 1px solid #cfded1;
+            border: 1px solid #ccdace;
 
-            border-radius: 10px;
+            border-radius: 12px;
 
             font-size: 14px;
 
-            background: #fafdfb;
-        }
-
-
-        #chatInput:focus {
-
             outline: none;
 
+            background: #fbfdfb;
+        }
+
+        #chatInput:focus {
             border-color: #43a047;
 
             box-shadow:
-                0 0 0 3px rgba(67, 160, 71, 0.12);
+                0 0 0 3px rgba(67,160,71,0.12);
         }
 
 
-        /* ================================
-           CHAT ANSWER
-        ================================= */
+        /* =========================================
+           ASK BUTTON
+        ========================================= */
+
+        .ask-btn {
+            width: 100%;
+
+            padding: 12px;
+
+            margin-top: 10px;
+
+            border: none;
+            border-radius: 11px;
+
+            background: #e8f5e9;
+
+            color: #1b5e20;
+
+            font-size: 15px;
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+        .ask-btn:hover {
+            background: #d2ecd5;
+        }
+
+
+        /* =========================================
+           AI ANSWER
+        ========================================= */
 
         #chatAnswer {
-
-            margin-top: 16px;
+            margin-top: 15px;
 
             background:
                 linear-gradient(
                     145deg,
-                    #f1f8f2,
+                    #f2f9f3,
                     #eaf5eb
                 );
 
-            border: 1px solid #d5e7d7;
+            border: 1px solid #d2e6d4;
 
-            padding: 18px;
+            border-radius: 15px;
 
-            border-radius: 14px;
+            padding: 17px;
 
             line-height: 1.7;
 
-            color: #27352a;
+            color: #273b2b;
 
             font-size: 14px;
         }
 
-
         #chatAnswer h2,
         #chatAnswer h3 {
-
-            color: #2e7d32;
+            color: #216b2c;
 
             margin-top: 18px;
-
             margin-bottom: 8px;
 
             font-size: 17px;
         }
 
-
         #chatAnswer h2:first-child,
         #chatAnswer h3:first-child {
-
             margin-top: 0;
         }
 
-
         #chatAnswer h4 {
+            color: #2e7d32;
 
-            color: #388e3c;
-
-            margin-top: 16px;
-
+            margin-top: 15px;
             margin-bottom: 7px;
         }
 
-
         #chatAnswer p {
-
-            margin-bottom: 13px;
+            margin-bottom: 12px;
+            line-height: 1.7;
         }
-
 
         #chatAnswer ul,
         #chatAnswer ol {
-
-            padding-left: 22px;
-
-            margin-bottom: 14px;
+            padding-left: 21px;
+            margin-bottom: 13px;
         }
 
-
         #chatAnswer li {
-
-            margin-bottom: 8px;
-
+            margin-bottom: 7px;
             line-height: 1.6;
         }
 
-
         #chatAnswer strong {
-
-            color: #1f5e27;
+            color: #155d25;
         }
 
 
-        /* ================================
-           STATUS MESSAGE
-        ================================= */
+        /* =========================================
+           LOADING
+        ========================================= */
 
         .loading {
+            padding: 17px;
 
             text-align: center;
 
-            padding: 15px;
-
             color: #2e7d32;
 
-            font-weight: 600;
+            background: #edf7ee;
+
+            border-radius: 13px;
+
+            font-weight: bold;
         }
 
 
+        /* =========================================
+           ERROR
+        ========================================= */
+
         .error {
+            padding: 13px;
+
+            border-radius: 11px;
 
             background: #fff1f1;
 
+            border: 1px solid #efcccc;
+
             color: #b42318;
-
-            border: 1px solid #f0caca;
-
-            padding: 12px;
-
-            border-radius: 10px;
 
             line-height: 1.5;
         }
 
 
-        /* ================================
+        /* =========================================
            FOOTER
-        ================================= */
+        ========================================= */
 
         .footer {
-
             text-align: center;
 
-            margin-top: 22px;
+            margin-top: 18px;
 
-            color: #8a948b;
+            color: #91a095;
 
-            font-size: 12px;
+            font-size: 11px;
+
+            line-height: 1.5;
         }
 
 
-        /* ================================
+        /* =========================================
            MOBILE
-        ================================= */
+        ========================================= */
 
         @media (max-width: 600px) {
 
             body {
-
-                padding: 18px 10px;
+                padding: 15px 9px 30px;
             }
 
-
-            .container {
-
-                border-radius: 20px;
-
-                padding: 24px 17px 25px;
+            .header {
+                margin-bottom: 15px;
             }
 
+            .header-icon {
+                width: 62px;
+                height: 62px;
+                font-size: 32px;
+            }
 
-            h1 {
-
+            .header h1 {
                 font-size: 23px;
             }
 
-
-            .logo {
-
-                width: 55px;
-                height: 55px;
-
-                font-size: 28px;
+            .header p {
+                font-size: 13px;
             }
 
+            .main-card {
+                padding: 15px;
 
-            #chatAnswer {
+                border-radius: 22px;
+            }
 
+            .upload-section {
                 padding: 15px;
             }
         }
@@ -622,35 +680,51 @@
 
 <body>
 
-    <div class="container">
+<div class="app">
 
-        <!-- HEADER -->
+    <!-- =========================================
+         HEADER
+    ========================================== -->
 
-        <div class="header">
+    <div class="header">
 
-            <div class="logo">
-                🌱
-            </div>
-
-            <h1>
-                Crop Disease Detection
-            </h1>
-
-            <div class="subtitle">
-                Upload a crop leaf image to identify possible
-                diseases and receive management guidance.
-            </div>
-
+        <div class="header-icon">
+            🌱
         </div>
+
+        <h1>
+            Crop Disease Detection
+        </h1>
+
+        <p>
+            Upload a leaf image to detect crop diseases
+            and receive management recommendations.
+        </p>
+
+    </div>
+
+
+    <!-- =========================================
+         MAIN CARD
+    ========================================== -->
+
+    <div class="main-card">
 
 
         <!-- UPLOAD -->
 
-        <div class="upload-card">
+        <div class="upload-section">
 
-            <label class="upload-label">
-                📷 Upload Leaf Image
-            </label>
+            <div class="section-title">
+
+                <div class="section-icon">
+                    📷
+                </div>
+
+                Upload Leaf Image
+
+            </div>
+
 
             <input
                 type="file"
@@ -658,11 +732,14 @@
                 accept="image/*"
             >
 
-            <div class="preview-wrapper">
+
+            <div
+                class="preview-box"
+                id="previewBox"
+            >
 
                 <img
                     id="preview"
-                    style="display:none;"
                     alt="Selected leaf image"
                 >
 
@@ -673,7 +750,10 @@
 
         <!-- PREDICT -->
 
-        <button onclick="predict()">
+        <button
+            class="predict-btn"
+            onclick="predict()"
+        >
             🔍 Predict Disease
         </button>
 
@@ -687,19 +767,31 @@
 
         <div id="chatSection">
 
-            <h3>
-                💬 Have a question about this diagnosis?
-            </h3>
+            <div class="chat-title">
+
+                <div class="chat-icon">
+                    💬
+                </div>
+
+                Have a question about this diagnosis?
+
+            </div>
+
 
             <input
                 type="text"
                 id="chatInput"
-                placeholder="e.g. What is a fungicide?"
+                placeholder="e.g. Is this safe for my other plants?"
             >
 
-            <button onclick="askQuestion()">
+
+            <button
+                class="ask-btn"
+                onclick="askQuestion()"
+            >
                 Ask Question
             </button>
+
 
             <div id="chatAnswer"></div>
 
@@ -707,132 +799,146 @@
 
 
         <div class="footer">
-            Intelligent Crop Disease Detection & Management System
+            Crop Disease Detection and Management System
         </div>
 
     </div>
 
-
-    <script>
-
-        const imageInput =
-            document.getElementById('imageInput');
-
-        const preview =
-            document.getElementById('preview');
-
-        const resultDiv =
-            document.getElementById('result');
-
-        const chatSection =
-            document.getElementById('chatSection');
-
-        const chatInput =
-            document.getElementById('chatInput');
-
-        const chatAnswer =
-            document.getElementById('chatAnswer');
-
-        let currentDisease = '';
+</div>
 
 
-        /* ================================
-           RESET RESULTS
-        ================================= */
+<script>
 
-        function resetResults() {
+    const imageInput =
+        document.getElementById('imageInput');
 
-            resultDiv.innerHTML = '';
+    const preview =
+        document.getElementById('preview');
 
-            chatSection.style.display = 'none';
+    const previewBox =
+        document.getElementById('previewBox');
 
-            chatInput.value = '';
+    const resultDiv =
+        document.getElementById('result');
 
-            chatAnswer.innerHTML = '';
+    const chatSection =
+        document.getElementById('chatSection');
 
-            currentDisease = '';
-        }
+    const chatInput =
+        document.getElementById('chatInput');
 
+    const chatAnswer =
+        document.getElementById('chatAnswer');
 
-        /* ================================
-           IMAGE PREVIEW
-        ================================= */
-
-        imageInput.addEventListener(
-            'change',
-            function() {
-
-                const file = this.files[0];
-
-                if (file) {
-
-                    preview.src =
-                        URL.createObjectURL(file);
-
-                    preview.style.display =
-                        'block';
-                }
-
-                resetResults();
-
-            }
-        );
+    let currentDisease = '';
 
 
-        /* ================================
-           PREDICT DISEASE
-        ================================= */
+    /* =========================================
+       RESET
+    ========================================== */
 
-        function predict() {
+    function resetResults() {
 
-            const file =
-                imageInput.files[0];
+        resultDiv.innerHTML = '';
 
-            if (!file) {
+        chatSection.style.display = 'none';
 
-                resultDiv.innerHTML = `
-                    <div class="error">
-                        Please select an image first.
-                    </div>
-                `;
+        chatInput.value = '';
 
-                return;
-            }
+        chatAnswer.innerHTML = '';
 
+        currentDisease = '';
+
+    }
+
+
+    /* =========================================
+       IMAGE SELECTION
+    ========================================== */
+
+    imageInput.addEventListener(
+        'change',
+        function() {
+
+            const file = this.files[0];
 
             resetResults();
 
+            if (file) {
+
+                preview.src =
+                    URL.createObjectURL(file);
+
+                previewBox.style.display =
+                    'block';
+
+            } else {
+
+                previewBox.style.display =
+                    'none';
+
+            }
+
+        }
+    );
+
+
+    /* =========================================
+       PREDICT
+    ========================================== */
+
+    function predict() {
+
+        const file =
+            imageInput.files[0];
+
+
+        if (!file) {
 
             resultDiv.innerHTML = `
-                <div class="loading">
-                    🔄 Analyzing leaf image...
+                <div class="error">
+                    Please select an image first.
                 </div>
             `;
 
-
-            const formData =
-                new FormData();
-
-            formData.append(
-                'file',
-                file
-            );
+            return;
+        }
 
 
-            fetch('/predict', {
+        resetResults();
 
+
+        resultDiv.innerHTML = `
+            <div class="loading">
+                🔄 Analyzing leaf image...
+            </div>
+        `;
+
+
+        const formData =
+            new FormData();
+
+        formData.append(
+            'file',
+            file
+        );
+
+
+        fetch(
+            '/predict',
+            {
                 method: 'POST',
-
                 body: formData
+            }
+        )
 
-            })
+        .then(
+            response =>
+                response.json()
+        )
 
-            .then(
-                response =>
-                    response.json()
-            )
-
-            .then(data => {
+        .then(
+            data => {
 
                 if (data.error) {
 
@@ -842,45 +948,58 @@
                         </div>
                     `;
 
-                } else {
-
-                    currentDisease =
-                        data.disease;
+                    return;
+                }
 
 
-                    const stepsHtml =
-                        data.recommendation_steps
-                        .map(
-                            step =>
-                                `<li>${step}</li>`
-                        )
-                        .join('');
+                currentDisease =
+                    data.disease;
 
 
-                    /*
-                     * IMPORTANT:
-                     * These are the same information
-                     * already documented in Chapter Three.
-                     */
-
-                    resultDiv.innerHTML = `
-
-                        <div class="result-card">
-
-                            <p>
-                                <strong>
-                                    Disease Detected:
-                                </strong>
-                                ${data.disease}
-                            </p>
+                const stepsHtml =
+                    data.recommendation_steps
+                    .map(
+                        step =>
+                            `<li>${step}</li>`
+                    )
+                    .join('');
 
 
-                            <p>
-                                <strong>
-                                    Confidence:
-                                </strong>
-                                ${data.confidence}
-                            </p>
+                resultDiv.innerHTML = `
+
+                    <div class="result-card">
+
+                        <div class="result-header">
+                            🌿 Diagnosis Result
+                        </div>
+
+
+                        <div class="result-body">
+
+                            <div class="result-row">
+
+                                <span class="result-label">
+                                    Disease Detected
+                                </span>
+
+                                <span class="result-value">
+                                    ${data.disease}
+                                </span>
+
+                            </div>
+
+
+                            <div class="result-row">
+
+                                <span class="result-label">
+                                    Confidence
+                                </span>
+
+                                <span class="result-value">
+                                    ${data.confidence}
+                                </span>
+
+                            </div>
 
 
                             <h3>
@@ -904,16 +1023,19 @@
 
                         </div>
 
-                    `;
+                    </div>
+
+                `;
 
 
-                    chatSection.style.display =
-                        'block';
-                }
+                chatSection.style.display =
+                    'block';
 
-            })
+            }
+        )
 
-            .catch(err => {
+        .catch(
+            err => {
 
                 resultDiv.innerHTML = `
                     <div class="error">
@@ -921,34 +1043,37 @@
                     </div>
                 `;
 
-            });
+            }
+        );
 
+    }
+
+
+    /* =========================================
+       CHAT
+    ========================================== */
+
+    function askQuestion() {
+
+        const question =
+            chatInput.value.trim();
+
+
+        if (!question) {
+            return;
         }
 
 
-        /* ================================
-           ASK QUESTION
-        ================================= */
-
-        function askQuestion() {
-
-            const question =
-                chatInput.value.trim();
+        chatAnswer.innerHTML = `
+            <div class="loading">
+                🤔 Thinking...
+            </div>
+        `;
 
 
-            if (!question)
-                return;
-
-
-            chatAnswer.innerHTML = `
-                <div class="loading">
-                    🤔 Thinking...
-                </div>
-            `;
-
-
-            fetch('/chat', {
-
+        fetch(
+            '/chat',
+            {
                 method: 'POST',
 
                 headers: {
@@ -966,14 +1091,16 @@
 
                 })
 
-            })
+            }
+        )
 
-            .then(
-                response =>
-                    response.json()
-            )
+        .then(
+            response =>
+                response.json()
+        )
 
-            .then(data => {
+        .then(
+            data => {
 
                 if (data.error) {
 
@@ -983,24 +1110,20 @@
                         </div>
                     `;
 
-                } else {
-
-                    /*
-                     * marked.js keeps the AI response
-                     * properly formatted into headings,
-                     * paragraphs, bullets and lists.
-                     */
-
-                    chatAnswer.innerHTML =
-                        marked.parse(
-                            data.answer
-                        );
-
+                    return;
                 }
 
-            })
 
-            .catch(err => {
+                chatAnswer.innerHTML =
+                    marked.parse(
+                        data.answer
+                    );
+
+            }
+        )
+
+        .catch(
+            err => {
 
                 chatAnswer.innerHTML = `
                     <div class="error">
@@ -1008,11 +1131,12 @@
                     </div>
                 `;
 
-            });
+            }
+        );
 
-        }
+    }
 
-    </script>
+</script>
 
 </body>
-                </html>
+</html>
