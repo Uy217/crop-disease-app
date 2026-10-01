@@ -2,208 +2,1351 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Crop Disease Detection</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f0f4f0; text-align: center; padding: 50px; }
-        h1 { color: #2e7d32; }
-        .container { background: white; max-width: 500px; margin: 0 auto; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .container.wide { max-width: 640px; margin-top: 30px; }
-        input[type="file"], input[type="text"] { margin: 10px 0; width: 90%; padding: 8px; }
-        select { margin: 10px 0; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
-        button { background-color: #2e7d32; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
-        button:hover { background-color: #1b5e20; }
-        #result, #chatSection { margin-top: 20px; font-size: 16px; text-align: left; }
-        #result h3 { margin-bottom: 4px; margin-top: 16px; }
-        #result ol { padding-left: 20px; margin-top: 6px; }
-        #result li { margin-bottom: 6px; }
-        img#preview { max-width: 100%; margin-top: 15px; border-radius: 8px; }
-        #chatSection { display: none; border-top: 1px solid #ddd; padding-top: 15px; }
-        #chatAnswer {
-            margin-top: 10px; background: #f0f4f0; padding: 16px 18px; border-radius: 6px; line-height: 1.6;
-        }
-        #chatAnswer h2, #chatAnswer h3 { color: #2e7d32; margin-top: 16px; margin-bottom: 6px; font-size: 17px; }
-        #chatAnswer h2:first-child, #chatAnswer h3:first-child { margin-top: 0; }
-        #chatAnswer p { margin-bottom: 12px; }
-        #chatAnswer ul, #chatAnswer ol { padding-left: 20px; margin-bottom: 12px; }
-        #chatAnswer li { margin-bottom: 6px; }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CropGuard AI | Crop Disease Detection</title>
 
-        .fs-note {
-            background: #fff8e1; border: 1px solid #f0d58c; border-radius: 6px;
-            padding: 10px 12px; font-size: 13.5px; text-align: left; color: #6b5300; margin-top: 14px;
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-        #fieldResult { text-align: left; margin-top: 18px; }
-        #fieldImg { max-width: 100%; border-radius: 8px; display: block; margin-top: 10px; }
-        .fs-stats { margin-top: 14px; background: #f0f4f0; border-radius: 6px; padding: 14px 16px; line-height: 1.7; }
-        .fs-stats b { color: #2e7d32; }
-        .fs-status { font-weight: bold; margin-top: 8px; }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 10% 10%, rgba(76, 175, 80, 0.18), transparent 30%),
+                radial-gradient(circle at 90% 20%, rgba(255, 193, 7, 0.16), transparent 30%),
+                linear-gradient(135deg, #eef8ef 0%, #f8fbf6 50%, #edf7f0 100%);
+            color: #1d3322;
+        }
+
+        /* ================= HEADER ================= */
+
+        .topbar {
+            width: 100%;
+            padding: 18px 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 800;
+            color: #176b35;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #2e9d50, #155d32);
+            color: white;
+            font-size: 22px;
+            box-shadow: 0 7px 20px rgba(46, 125, 50, 0.25);
+        }
+
+        .status-pill {
+            background: rgba(255,255,255,0.75);
+            border: 1px solid rgba(46,125,50,0.15);
+            padding: 8px 13px;
+            border-radius: 30px;
+            font-size: 12px;
+            color: #397347;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #35a853;
+            box-shadow: 0 0 0 4px rgba(53,168,83,0.12);
+        }
+
+        /* ================= MAIN ================= */
+
+        .dashboard {
+            width: min(1050px, 94%);
+            margin: 10px auto 50px;
+            background: rgba(255,255,255,0.92);
+            border: 1px solid rgba(46,125,50,0.10);
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow:
+                0 25px 70px rgba(33, 72, 42, 0.12),
+                0 5px 20px rgba(33, 72, 42, 0.06);
+        }
+
+        /* ================= HERO ================= */
+
+        .hero {
+            position: relative;
+            padding: 48px 45px 42px;
+            background:
+                linear-gradient(135deg, rgba(24,105,53,0.98), rgba(42,139,71,0.96));
+            color: white;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            right: -90px;
+            top: -120px;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(255,193,7,0.08);
+            left: -80px;
+            bottom: -100px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 700px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.13);
+            border: 1px solid rgba(255,255,255,0.20);
+            padding: 7px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+
+        .hero h1 {
+            font-size: clamp(30px, 5vw, 46px);
+            line-height: 1.05;
+            margin-bottom: 13px;
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            color: rgba(255,255,255,0.82);
+            max-width: 650px;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        /* ================= MODE TABS ================= */
+
+        .mode-area {
+            padding: 25px 35px 0;
+        }
+
+        .mode-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            background: #edf5ee;
+            padding: 7px;
+            border-radius: 18px;
+        }
+
+        .mode-btn {
+            border: none;
+            background: transparent;
+            padding: 15px 12px;
+            border-radius: 13px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            color: #607364;
+            transition: all .25s ease;
+        }
+
+        .mode-btn:hover {
+            color: #176b35;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: #176b35;
+            box-shadow: 0 5px 18px rgba(34, 83, 44, 0.10);
+        }
+
+        .mode-icon {
+            font-size: 20px;
+            margin-right: 6px;
+        }
+
+        /* ================= PANELS ================= */
+
+        .panel {
+            display: none;
+            padding: 30px 35px 40px;
+        }
+
+        .panel.active {
+            display: block;
+            animation: fadeIn .3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(7px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #183c23;
+            margin-bottom: 6px;
+        }
+
+        .section-subtitle {
+            color: #728075;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 22px;
+        }
+
+        /* ================= UPLOAD ================= */
+
+        .upload-box {
+            border: 2px dashed #b9d8be;
+            border-radius: 18px;
+            padding: 30px 20px;
+            text-align: center;
+            background: linear-gradient(180deg, #fbfffb, #f5faf5);
+            transition: .25s ease;
+            cursor: pointer;
+        }
+
+        .upload-box:hover {
+            border-color: #43a858;
+            background: #f5fcf5;
+        }
+
+        .upload-icon {
+            width: 58px;
+            height: 58px;
+            margin: 0 auto 12px;
+            border-radius: 17px;
+            background: #e4f4e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .upload-box strong {
+            display: block;
+            color: #24472c;
+            margin-bottom: 5px;
+        }
+
+        .upload-box span {
+            color: #87958a;
+            font-size: 12px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .preview-wrapper {
+            margin-top: 18px;
+            display: none;
+        }
+
+        .preview-wrapper img {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 15px;
+            border: 1px solid #dbe9dc;
+            background: #f5f7f5;
+        }
+
+        /* ================= CONTROLS ================= */
+
+        .action-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        .primary-btn {
+            flex: 1;
+            min-width: 170px;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #2e9d50, #176b35);
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 9px 20px rgba(46,125,50,0.18);
+            transition: .2s ease;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(46,125,50,0.24);
+        }
+
+        .grid-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 18px;
+            color: #647267;
+            font-size: 14px;
+        }
+
+        select {
+            border: 1px solid #cfe0d1;
+            background: white;
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: #31563a;
+            font-weight: 600;
+            outline: none;
+        }
+
+        /* ================= RESULTS ================= */
+
+        .result {
+            margin-top: 25px;
+        }
+
+        .result-card {
+            border-radius: 18px;
+            padding: 22px;
+            background: linear-gradient(135deg, #f4fbf4, #ffffff);
+            border: 1px solid #dcebdd;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .result-label {
+            font-size: 12px;
+            color: #718078;
+            margin-bottom: 5px;
+        }
+
+        .disease-name {
+            font-size: 22px;
+            color: #173d22;
+            font-weight: 800;
+        }
+
+        .confidence {
+            background: #e3f5e6;
+            color: #21733a;
+            padding: 8px 12px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .result-section {
+            margin-top: 20px;
+        }
+
+        .result-section h3 {
+            color: #246b35;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .result-section p {
+            color: #58675c;
+            line-height: 1.65;
+            font-size: 14px;
+        }
+
+        .result-section ol {
+            padding-left: 20px;
+            color: #58675c;
+        }
+
+        .result-section li {
+            margin-bottom: 7px;
+            line-height: 1.5;
+        }
+
+        /* ================= CHAT ================= */
+
+        #chatSection {
+            margin-top: 22px;
+            border-top: 1px solid #e1eae2;
+            padding-top: 22px;
+        }
+
+        .chat-title {
+            color: #24472c;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .chat-row {
+            display: flex;
+            gap: 9px;
+        }
+
+        #chatInput {
+            flex: 1;
+            border: 1px solid #cfdfd1;
+            border-radius: 12px;
+            padding: 13px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        #chatInput:focus {
+            border-color: #43a858;
+        }
+
+        .chat-btn {
+            border: none;
+            background: #246b35;
+            color: white;
+            padding: 0 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        #chatAnswer {
+            margin-top: 13px;
+            background: #f3f8f3;
+            padding: 17px;
+            border-radius: 13px;
+            line-height: 1.65;
+            color: #526157;
+        }
+
+        #chatAnswer h2,
+        #chatAnswer h3 {
+            color: #246b35;
+            margin-top: 15px;
+            margin-bottom: 7px;
+            font-size: 16px;
+        }
+
+        #chatAnswer p {
+            margin-bottom: 10px;
+        }
+
+        #chatAnswer ul,
+        #chatAnswer ol {
+            padding-left: 20px;
+        }
+
+        /* ================= FIELD SCAN ================= */
+
+        .field-note {
+            background: linear-gradient(135deg, #fff8df, #fffdf5);
+            border: 1px solid #f0d994;
+            border-radius: 14px;
+            padding: 14px 16px;
+            color: #705c1d;
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 18px;
+        }
+
+        .field-note strong {
+            color: #594600;
+        }
+
+        #fieldResult {
+            margin-top: 25px;
+        }
+
+        #fieldImg {
+            width: 100%;
+            max-height: 600px;
+            object-fit: contain;
+            border-radius: 17px;
+            border: 1px solid #d8e6d9;
+            background: #f5f7f5;
+        }
+
+        .field-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: #f6faf6;
+            border: 1px solid #e0ebe1;
+            padding: 16px;
+            border-radius: 14px;
+        }
+
+        .stat-number {
+            font-size: 23px;
+            font-weight: 800;
+            color: #216c35;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #78857c;
+            margin-top: 4px;
+        }
+
+        .field-status {
+            margin-top: 15px;
+            padding: 15px;
+            background: #eef7ef;
+            border-left: 4px solid #31924b;
+            border-radius: 10px;
+            color: #365a3d;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* ================= LOADING ================= */
+
+        .loading {
+            text-align: center;
+            padding: 25px;
+            color: #607464;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #d7ead9;
+            border-top-color: #2e9d50;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            animation: spin .8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ================= FOOTER ================= */
+
+        .footer {
+            text-align: center;
+            padding: 0 20px 30px;
+            color: #89958d;
+            font-size: 11px;
+        }
+
+        /* ================= MOBILE ================= */
+
+        @media (max-width: 650px) {
+
+            .topbar {
+                padding: 14px 5%;
+            }
+
+            .status-pill {
+                display: none;
+            }
+
+            .dashboard {
+                width: 96%;
+                border-radius: 22px;
+                margin-top: 5px;
+            }
+
+            .hero {
+                padding: 35px 25px;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .mode-area {
+                padding: 18px 18px 0;
+            }
+
+            .panel {
+                padding: 25px 18px 30px;
+            }
+
+            .mode-btn {
+                font-size: 12px;
+                padding: 13px 6px;
+            }
+
+            .field-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-row {
+                flex-direction: column;
+            }
+
+            .chat-btn {
+                padding: 12px;
+            }
+
+            .action-row {
+                flex-direction: column;
+            }
+
+            .primary-btn {
+                width: 100%;
+            }
+        }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>🌱 Crop Disease Detection</h1>
-        <p>Upload a leaf image to detect the disease</p>
+
+<header class="topbar">
+    <div class="brand">
+        <div class="brand-icon">🌱</div>
+        CropGuard AI
+    </div>
+
+    <div class="status-pill">
+        <span class="status-dot"></span>
+        AI Detection System
+    </div>
+</header>
+
+
+<main class="dashboard">
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">🌿 Intelligent Crop Health Monitoring</div>
+
+            <h1>Crop Disease Detection</h1>
+
+            <p>
+                Detect crop diseases from individual leaf images or screen
+                wider crop areas using the Precision Agriculture Field
+                Screening Module.
+            </p>
+        </div>
+    </section>
+
+
+    <!-- MODE SELECTOR -->
+    <div class="mode-area">
+        <div class="mode-tabs">
+
+            <button class="mode-btn active" id="singleTab"
+                    onclick="switchMode('single')">
+                <span class="mode-icon">🔬</span>
+                Single Leaf
+            </button>
+
+            <button class="mode-btn" id="fieldTab"
+                    onclick="switchMode('field')">
+                <span class="mode-icon">🌾</span>
+                Field Scan
+            </button>
+
+        </div>
+    </div>
+
+
+    <!-- ================= SINGLE LEAF PANEL ================= -->
+
+    <section class="panel active" id="singlePanel">
+
+        <h2 class="section-title">Individual Leaf Diagnosis</h2>
+
+        <p class="section-subtitle">
+            Upload a clear image of a crop leaf. The EfficientNet model will
+            analyze the image and provide a disease prediction and management
+            recommendations.
+        </p>
+
+        <label class="upload-box" for="imageInput">
+
+            <div class="upload-icon">📷</div>
+
+            <strong>Upload a leaf image</strong>
+
+            <span>
+                Click here to choose an image from your device
+            </span>
+
+        </label>
+
         <input type="file" id="imageInput" accept="image/*">
-        <br>
-        <img id="preview" style="display:none;">
-        <br>
-        <button onclick="predict()">Predict</button>
+
+
+        <div class="preview-wrapper" id="singlePreviewWrapper">
+            <img id="preview" alt="Leaf preview">
+        </div>
+
+
+        <div class="action-row">
+
+            <button class="primary-btn" onclick="predict()">
+                🔍 Analyze Leaf
+            </button>
+
+        </div>
+
+
         <div id="result"></div>
 
-        <div id="chatSection">
-            <h3>Have a question about this diagnosis?</h3>
-            <input type="text" id="chatInput" placeholder="e.g. Is this safe for my other plants?">
-            <br>
-            <button onclick="askQuestion()">Ask</button>
+
+        <!-- CHAT -->
+
+        <div id="chatSection" style="display:none;">
+
+            <div class="chat-title">
+                💬 Ask the Agricultural Assistant
+            </div>
+
+            <div class="chat-row">
+
+                <input
+                    type="text"
+                    id="chatInput"
+                    placeholder="e.g. How can I prevent this disease?"
+                >
+
+                <button class="chat-btn" onclick="askQuestion()">
+                    Ask
+                </button>
+
+            </div>
+
             <div id="chatAnswer"></div>
-        </div>
-    </div>
 
-    <div class="container wide">
-        <h1>🌾 Field Scan</h1>
-        <p>Precision Agriculture Field Screening Module</p>
-        <p style="font-size: 14px; color: #555;">Upload a wider photo showing several plants/leaves. The image is divided into a grid, and each region is screened using the same disease classifier above, to flag which parts of the field may need closer inspection.</p>
+        </div>
+
+    </section>
+
+
+    <!-- ================= FIELD SCAN PANEL ================= -->
+
+    <section class="panel" id="fieldPanel">
+
+        <h2 class="section-title">
+            Precision Agriculture Field Screening
+        </h2>
+
+        <p class="section-subtitle">
+            Upload a wider image containing several plants or leaves.
+            The system divides the image into regions and screens each
+            region using the existing EfficientNet disease classifier.
+        </p>
+
+
+        <div class="field-note">
+
+            <strong>⚠️ Research Note:</strong>
+
+            The underlying classifier was trained and evaluated using
+            individual leaf images from the PlantVillage dataset.
+            This module demonstrates field-level screening by applying
+            the existing classifier to regions of a wider crop image.
+            Drone or aerial deployment would require additional aerial
+            imagery training and validation.
+
+        </div>
+
+
+        <label class="upload-box" for="fieldInput">
+
+            <div class="upload-icon">🚁</div>
+
+            <strong>Upload a field image</strong>
+
+            <span>
+                Use a wider photo showing several plants or leaves
+            </span>
+
+        </label>
+
         <input type="file" id="fieldInput" accept="image/*">
-        <br>
-        <label for="gridSize">Grid size: </label>
-        <select id="gridSize">
-            <option value="3">3 x 3 (9 regions)</option>
-            <option value="4" selected>4 x 4 (16 regions)</option>
-            <option value="5">5 x 5 (25 regions)</option>
-            <option value="6">6 x 6 (36 regions)</option>
-        </select>
-        <br>
-        <button onclick="scanField()">Scan Field</button>
 
-        <div class="fs-note">
-            <b>Note:</b> The underlying classifier was trained and evaluated on individual leaf images (PlantVillage dataset), not on drone or aerial imagery. This module demonstrates a field-level screening architecture by applying that same classifier to regions of a wider image. Full drone-based deployment would require a model trained and validated on aerial/field-level imagery.
+
+        <div class="preview-wrapper" id="fieldPreviewWrapper">
+            <img id="fieldPreview" alt="Field image preview">
         </div>
+
+
+        <div class="grid-control">
+
+            <label for="gridSize">
+                Screening grid:
+            </label>
+
+            <select id="gridSize">
+
+                <option value="3">
+                    3 × 3 — 9 regions
+                </option>
+
+                <option value="4" selected>
+                    4 × 4 — 16 regions
+                </option>
+
+                <option value="5">
+                    5 × 5 — 25 regions
+                </option>
+
+                <option value="6">
+                    6 × 6 — 36 regions
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="action-row">
+
+            <button class="primary-btn" onclick="scanField()">
+                🌾 Scan Field
+            </button>
+
+        </div>
+
 
         <div id="fieldResult"></div>
-    </div>
 
-    <script>
-        const imageInput = document.getElementById('imageInput');
-        const preview = document.getElementById('preview');
-        const resultDiv = document.getElementById('result');
-        const chatSection = document.getElementById('chatSection');
-        const chatInput = document.getElementById('chatInput');
-        const chatAnswer = document.getElementById('chatAnswer');
-        let currentDisease = '';
+    </section>
 
-        function resetResults() {
-            resultDiv.innerHTML = '';
-            chatSection.style.display = 'none';
-            chatInput.value = '';
-            chatAnswer.innerHTML = '';
-            currentDisease = '';
+</main>
+
+
+<div class="footer">
+    CropGuard AI • AI-Based Crop Disease Detection & Precision Agriculture Screening
+</div>
+
+
+<script>
+
+    /* ================= MODE SWITCHING ================= */
+
+    function switchMode(mode) {
+
+        const singlePanel =
+            document.getElementById("singlePanel");
+
+        const fieldPanel =
+            document.getElementById("fieldPanel");
+
+        const singleTab =
+            document.getElementById("singleTab");
+
+        const fieldTab =
+            document.getElementById("fieldTab");
+
+
+        if (mode === "single") {
+
+            singlePanel.classList.add("active");
+            fieldPanel.classList.remove("active");
+
+            singleTab.classList.add("active");
+            fieldTab.classList.remove("active");
+
+        } else {
+
+            singlePanel.classList.remove("active");
+            fieldPanel.classList.add("active");
+
+            singleTab.classList.remove("active");
+            fieldTab.classList.add("active");
+
         }
 
-        imageInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                preview.src = URL.createObjectURL(file);
-                preview.style.display = 'block';
+        window.scrollTo({
+            top: document.querySelector(".dashboard").offsetTop - 10,
+            behavior: "smooth"
+        });
+    }
+
+
+    /* ================= SINGLE IMAGE ================= */
+
+    const imageInput =
+        document.getElementById("imageInput");
+
+    const preview =
+        document.getElementById("preview");
+
+    const singlePreviewWrapper =
+        document.getElementById("singlePreviewWrapper");
+
+    const resultDiv =
+        document.getElementById("result");
+
+    const chatSection =
+        document.getElementById("chatSection");
+
+    const chatInput =
+        document.getElementById("chatInput");
+
+    const chatAnswer =
+        document.getElementById("chatAnswer");
+
+    let currentDisease = "";
+
+
+    imageInput.addEventListener("change", function() {
+
+        const file = this.files[0];
+
+        if (!file) return;
+
+        preview.src =
+            URL.createObjectURL(file);
+
+        singlePreviewWrapper.style.display =
+            "block";
+
+        resultDiv.innerHTML = "";
+
+        chatSection.style.display = "none";
+
+        chatAnswer.innerHTML = "";
+
+        currentDisease = "";
+    });
+
+
+    function predict() {
+
+        const file =
+            imageInput.files[0];
+
+        if (!file) {
+
+            resultDiv.innerHTML =
+                "<p style='color:#c62828;margin-top:15px;'>Please select a leaf image first.</p>";
+
+            return;
+        }
+
+
+        resultDiv.innerHTML = `
+            <div class="loading">
+                <div class="spinner"></div>
+                Analyzing leaf image...
+            </div>
+        `;
+
+
+        const formData =
+            new FormData();
+
+        formData.append("file", file);
+
+
+        fetch("/predict", {
+            method: "POST",
+            body: formData
+        })
+
+        .then(response => response.json())
+
+        .then(data => {
+
+            if (data.error) {
+
+                resultDiv.innerHTML =
+                    `<p style="color:#c62828;">${data.error}</p>`;
+
+                return;
             }
-            resetResults();
+
+
+            currentDisease =
+                data.disease;
+
+
+            const stepsHtml =
+                data.recommendation_steps
+                    .map(step => `<li>${step}</li>`)
+                    .join("");
+
+
+            resultDiv.innerHTML = `
+
+                <div class="result-card">
+
+                    <div class="result-header">
+
+                        <div>
+
+                            <div class="result-label">
+                                DETECTION RESULT
+                            </div>
+
+                            <div class="disease-name">
+                                ${data.disease}
+                            </div>
+
+                        </div>
+
+                        <div class="confidence">
+                            ${data.confidence}
+                        </div>
+
+                    </div>
+
+
+                    <div class="result-section">
+
+                        <h3>🩺 Symptoms</h3>
+
+                        <p>
+                            ${data.symptoms}
+                        </p>
+
+                    </div>
+
+
+                    <div class="result-section">
+
+                        <h3>
+                            🌿 Recommended Management Steps
+                        </h3>
+
+                        <ol>
+                            ${stepsHtml}
+                        </ol>
+
+                    </div>
+
+                </div>
+            `;
+
+
+            chatSection.style.display =
+                "block";
+
+        })
+
+        .catch(() => {
+
+            resultDiv.innerHTML =
+                "<p style='color:#c62828;'>Error connecting to the server.</p>";
+
+        });
+    }
+
+
+    /* ================= AGRICULTURAL CHAT ================= */
+
+    function askQuestion() {
+
+        const question =
+            chatInput.value.trim();
+
+        if (!question) return;
+
+
+        chatAnswer.innerHTML = `
+            <div class="loading">
+                <div class="spinner"></div>
+                Agricultural Assistant is thinking...
+            </div>
+        `;
+
+
+        fetch("/chat", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                    "application/json"
+            },
+
+            body: JSON.stringify({
+
+                disease: currentDisease,
+
+                question: question
+
+            })
+
+        })
+
+        .then(response => response.json())
+
+        .then(data => {
+
+            if (data.error) {
+
+                chatAnswer.innerHTML =
+                    `<p style="color:#c62828;">${data.error}</p>`;
+
+            } else {
+
+                chatAnswer.innerHTML =
+                    marked.parse(data.answer);
+
+            }
+
+        })
+
+        .catch(() => {
+
+            chatAnswer.innerHTML =
+                "<p style='color:#c62828;'>Error connecting to the server.</p>";
+
         });
 
-        function predict() {
-            const file = imageInput.files[0];
-            if (!file) {
-                resultDiv.innerHTML = "<p style='color:red;'>Please select an image first.</p>";
-                return;
-            }
-            resetResults();
-            resultDiv.innerHTML = "<p>Analyzing...</p>";
-            const formData = new FormData();
-            formData.append('file', file);
-            fetch('/predict', { method: 'POST', body: formData })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    resultDiv.innerHTML = `<p style='color:red;'>${data.error}</p>`;
-                } else {
-                    currentDisease = data.disease;
-                    const stepsHtml = data.recommendation_steps.map(step => `<li>${step}</li>`).join('');
-                    resultDiv.innerHTML = `
-                        <p><strong>Disease Detected:</strong> ${data.disease}</p>
-                        <p><strong>Confidence:</strong> ${data.confidence}</p>
-                        <h3>Symptoms</h3>
-                        <p>${data.symptoms}</p>
-                        <h3>Recommended Pesticide &amp; Management Steps</h3>
-                        <ol>${stepsHtml}</ol>
-                    `;
-                    chatSection.style.display = 'block';
-                }
-            })
-            .catch(err => {
-                resultDiv.innerHTML = "<p style='color:red;'>Error connecting to server.</p>";
-            });
+    }
+
+
+    /* ================= FIELD SCAN ================= */
+
+    const fieldInput =
+        document.getElementById("fieldInput");
+
+    const fieldPreview =
+        document.getElementById("fieldPreview");
+
+    const fieldPreviewWrapper =
+        document.getElementById("fieldPreviewWrapper");
+
+    const gridSize =
+        document.getElementById("gridSize");
+
+    const fieldResult =
+        document.getElementById("fieldResult");
+
+
+    fieldInput.addEventListener("change", function() {
+
+        const file = this.files[0];
+
+        if (!file) return;
+
+        fieldPreview.src =
+            URL.createObjectURL(file);
+
+        fieldPreviewWrapper.style.display =
+            "block";
+
+        fieldResult.innerHTML = "";
+
+    });
+
+
+    function scanField() {
+
+        const file =
+            fieldInput.files[0];
+
+        if (!file) {
+
+            fieldResult.innerHTML =
+                "<p style='color:#c62828;margin-top:15px;'>Please select a field image first.</p>";
+
+            return;
         }
 
-        function askQuestion() {
-            const question = chatInput.value;
-            if (!question) return;
-            chatAnswer.innerHTML = "<p>Thinking...</p>";
-            fetch('/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ disease: currentDisease, question: question })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    chatAnswer.innerHTML = `<p style='color:red;'>${data.error}</p>`;
-                } else {
-                    chatAnswer.innerHTML = marked.parse(data.answer);
-                }
-            })
-            .catch(err => {
-                chatAnswer.innerHTML = "<p style='color:red;'>Error connecting to server.</p>";
-            });
-        }
 
-        // ---- Field Scan ----
-        const fieldInput = document.getElementById('fieldInput');
-        const gridSize = document.getElementById('gridSize');
-        const fieldResult = document.getElementById('fieldResult');
+        fieldResult.innerHTML = `
+            <div class="loading">
 
-        function scanField() {
-            const file = fieldInput.files[0];
-            if (!file) {
-                fieldResult.innerHTML = "<p style='color:red;'>Please select a field image first.</p>";
+                <div class="spinner"></div>
+
+                Screening field regions...
+
+                <br>
+
+                <small>
+                    This may take a little longer because
+                    multiple regions are being analyzed.
+                </small>
+
+            </div>
+        `;
+
+
+        const n =
+            gridSize.value;
+
+
+        const formData =
+            new FormData();
+
+        formData.append("file", file);
+
+        formData.append("rows", n);
+
+        formData.append("cols", n);
+
+
+        fetch("/field_scan", {
+
+            method: "POST",
+
+            body: formData
+
+        })
+
+        .then(response => response.json())
+
+        .then(data => {
+
+            if (data.error) {
+
+                fieldResult.innerHTML =
+                    `<p style="color:#c62828;">${data.error}</p>`;
+
                 return;
             }
-            fieldResult.innerHTML = "<p>Scanning field... this can take a little longer than a single prediction.</p>";
-            const n = gridSize.value;
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('rows', n);
-            formData.append('cols', n);
-            fetch('/field_scan', { method: 'POST', body: formData })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    fieldResult.innerHTML = `<p style='color:red;'>${data.error}</p>`;
-                } else {
-                    const mostCommon = data.most_common_disease ? data.most_common_disease : 'None';
-                    fieldResult.innerHTML = `
-                        <img id="fieldImg" src="data:image/jpeg;base64,${data.image}">
-                        <div class="fs-stats">
-                            <p>Total regions scanned: <b>${data.total_tiles}</b> (${data.rows} x ${data.cols} grid)</p>
-                            <p>Healthy: <b>${data.healthy_count}</b> (${data.healthy_pct}%)</p>
-                            <p>Flagged as possibly diseased: <b>${data.diseased_count}</b> (${data.diseased_pct}%)</p>
-                            <p>Most common condition flagged: <b>${mostCommon}</b></p>
-                            <p class="fs-status">${data.field_status}</p>
+
+
+            const mostCommon =
+                data.most_common_disease ||
+                "None";
+
+
+            fieldResult.innerHTML = `
+
+                <div>
+
+                    <img
+                        id="fieldImg"
+                        src="data:image/jpeg;base64,${data.image}"
+                        alt="Annotated field scan result"
+                    >
+
+
+                    <div class="field-stats">
+
+                        <div class="stat-card">
+
+                            <div class="stat-number">
+                                ${data.total_tiles}
+                            </div>
+
+                            <div class="stat-label">
+                                REGIONS SCANNED
+                            </div>
+
                         </div>
-                    `;
-                }
-            })
-            .catch(err => {
-                fieldResult.innerHTML = "<p style='color:red;'>Error connecting to server.</p>";
-            });
-        }
-    </script>
+
+
+                        <div class="stat-card">
+
+                            <div class="stat-number">
+                                ${data.healthy_pct}%
+                            </div>
+
+                            <div class="stat-label">
+                                HEALTHY REGIONS
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat-card">
+
+                            <div class="stat-number">
+                                ${data.diseased_pct}%
+                            </div>
+
+                            <div class="stat-label">
+                                POSSIBLY DISEASED REGIONS
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="result-card"
+                         style="margin-top:15px;">
+
+                        <div class="result-section">
+
+                            <h3>
+                                🔎 Most Common Condition Flagged
+                            </h3>
+
+                            <p>
+                                <strong>
+                                    ${mostCommon}
+                                </strong>
+                            </p>
+
+                        </div>
+
+
+                        <div class="field-status">
+
+                            <strong>
+                                Field Screening Status
+                            </strong>
+
+                            <br>
+
+                            ${data.field_status}
+
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+
+        })
+
+        .catch(() => {
+
+            fieldResult.innerHTML =
+                "<p style='color:#c62828;'>Error connecting to the server.</p>";
+
+        });
+
+    }
+
+</script>
+
 </body>
-            </html>
+</html>
