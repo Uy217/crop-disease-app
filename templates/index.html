@@ -1,754 +1,998 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CropGuard AI | Crop Disease Detection</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>CropGuard | Crop Disease Detection</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+<style>
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        background:
+            linear-gradient(
+                135deg,
+                #063b20 0%,
+                #0b5d32 35%,
+                #087f42 70%,
+                #0d9b50 100%
+            );
+        min-height: 100vh;
+        color: #183b2a;
+    }
+
+    /* ================================
+       HEADER
+    ================================= */
+
+    header {
+        background: rgba(3, 48, 25, 0.92);
+        color: white;
+        padding: 22px 5%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .brand-icon {
+        width: 46px;
+        height: 46px;
+        background: #8ee28e;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 25px;
+    }
+
+    .brand h2 {
+        font-size: 20px;
+    }
+
+    .brand span {
+        font-size: 12px;
+        opacity: 0.75;
+    }
+
+    .header-badge {
+        background: rgba(255,255,255,0.1);
+        padding: 8px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+    }
+
+    /* ================================
+       MAIN
+    ================================= */
+
+    main {
+        width: 94%;
+        max-width: 1200px;
+        margin: 35px auto 60px;
+    }
+
+    .hero {
+        color: white;
+        margin-bottom: 28px;
+    }
+
+    .hero h1 {
+        font-size: clamp(30px, 5vw, 48px);
+        margin-bottom: 10px;
+    }
+
+    .hero p {
+        max-width: 750px;
+        line-height: 1.7;
+        opacity: 0.9;
+    }
+
+    /* ================================
+       MODE TABS
+    ================================= */
+
+    .mode-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .mode-tab {
+        border: none;
+        padding: 18px;
+        border-radius: 16px;
+        cursor: pointer;
+        background: rgba(255,255,255,0.15);
+        color: white;
+        text-align: left;
+        border: 1px solid rgba(255,255,255,0.2);
+        transition: 0.25s;
+    }
+
+    .mode-tab:hover {
+        background: rgba(255,255,255,0.23);
+    }
+
+    .mode-tab.active {
+        background: white;
+        color: #07572e;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.18);
+    }
+
+    .mode-tab strong {
+        display: block;
+        font-size: 17px;
+        margin-bottom: 5px;
+    }
+
+    .mode-tab small {
+        opacity: 0.75;
+    }
+
+    /* ================================
+       MAIN CARD
+    ================================= */
+
+    .workspace {
+        background: #e8f6ec;
+        border-radius: 24px;
+        padding: 25px;
+        box-shadow: 0 15px 45px rgba(0,0,0,0.18);
+    }
+
+    .upload-panel {
+        background: white;
+        border-radius: 20px;
+        padding: 28px;
+        border: 2px dashed #9ed9ad;
+        text-align: center;
+    }
+
+    .upload-icon {
+        font-size: 45px;
+        margin-bottom: 10px;
+    }
+
+    .upload-panel h2 {
+        color: #07572e;
+        margin-bottom: 8px;
+    }
+
+    .upload-panel p {
+        color: #63756b;
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 18px;
+    }
+
+    input[type="file"] {
+        width: 100%;
+        max-width: 500px;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #c6d8cc;
+        background: #f7fbf8;
+    }
+
+    /* ================================
+       PREVIEW
+    ================================= */
+
+    .preview-box {
+        margin-top: 20px;
+        display: none;
+    }
+
+    .preview-box img {
+        max-width: 100%;
+        max-height: 400px;
+        border-radius: 15px;
+        object-fit: contain;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+    }
+
+    /* ================================
+       CONTROLS
+    ================================= */
+
+    .controls {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-top: 18px;
+    }
+
+    select {
+        padding: 12px 15px;
+        border-radius: 10px;
+        border: 1px solid #bfd4c6;
+        background: white;
+    }
+
+    .primary-btn {
+        background: linear-gradient(
+            135deg,
+            #087f42,
+            #0da653
+        );
+        color: white;
+        border: none;
+        padding: 13px 25px;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(8,127,66,0.25);
+        transition: 0.2s;
+    }
+
+    .primary-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(8,127,66,0.3);
+    }
+
+    .primary-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* ================================
+       FIELD NOTE
+    ================================= */
+
+    .field-note {
+        margin-top: 18px;
+        padding: 14px;
+        background: #eff9e9;
+        border-left: 4px solid #68a93f;
+        border-radius: 8px;
+        text-align: left;
+        color: #506348;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    /* ================================
+       LOADING
+    ================================= */
+
+    .loading {
+        display: none;
+        margin: 20px auto;
+        text-align: center;
+        color: #087f42;
+        font-weight: bold;
+    }
+
+    .spinner {
+        width: 28px;
+        height: 28px;
+        border: 4px solid #cce9d5;
+        border-top-color: #087f42;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
         }
-
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            min-height: 100vh;
-            background:
-                radial-gradient(circle at 10% 10%, rgba(76, 175, 80, 0.18), transparent 30%),
-                radial-gradient(circle at 90% 20%, rgba(255, 193, 7, 0.16), transparent 30%),
-                linear-gradient(135deg, #eef8ef 0%, #f8fbf6 50%, #edf7f0 100%);
-            color: #1d3322;
-        }
-
-        /* ================= HEADER ================= */
-
-        .topbar {
-            width: 100%;
-            padding: 18px 6%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 20px;
-            font-weight: 800;
-            color: #176b35;
-        }
-
-        .brand-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #2e9d50, #155d32);
-            color: white;
-            font-size: 22px;
-            box-shadow: 0 7px 20px rgba(46, 125, 50, 0.25);
-        }
-
-        .status-pill {
-            background: rgba(255,255,255,0.75);
-            border: 1px solid rgba(46,125,50,0.15);
-            padding: 8px 13px;
-            border-radius: 30px;
-            font-size: 12px;
-            color: #397347;
-            display: flex;
-            align-items: center;
-            gap: 7px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #35a853;
-            box-shadow: 0 0 0 4px rgba(53,168,83,0.12);
-        }
-
-        /* ================= MAIN ================= */
-
-        .dashboard {
-            width: min(1050px, 94%);
-            margin: 10px auto 50px;
-            background: rgba(255,255,255,0.92);
-            border: 1px solid rgba(46,125,50,0.10);
-            border-radius: 28px;
-            overflow: hidden;
-            box-shadow:
-                0 25px 70px rgba(33, 72, 42, 0.12),
-                0 5px 20px rgba(33, 72, 42, 0.06);
-        }
-
-        /* ================= HERO ================= */
-
-        .hero {
-            position: relative;
-            padding: 48px 45px 42px;
-            background:
-                linear-gradient(135deg, rgba(24,105,53,0.98), rgba(42,139,71,0.96));
-            color: white;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: "";
-            position: absolute;
-            width: 280px;
-            height: 280px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.06);
-            right: -90px;
-            top: -120px;
-        }
-
-        .hero::after {
-            content: "";
-            position: absolute;
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            background: rgba(255,193,7,0.08);
-            left: -80px;
-            bottom: -100px;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            max-width: 700px;
-        }
-
-        .hero-badge {
-            display: inline-block;
-            background: rgba(255,255,255,0.13);
-            border: 1px solid rgba(255,255,255,0.20);
-            padding: 7px 12px;
-            border-radius: 30px;
-            font-size: 12px;
-            margin-bottom: 15px;
-        }
-
-        .hero h1 {
-            font-size: clamp(30px, 5vw, 46px);
-            line-height: 1.05;
-            margin-bottom: 13px;
-            letter-spacing: -1px;
-        }
-
-        .hero p {
-            color: rgba(255,255,255,0.82);
-            max-width: 650px;
-            line-height: 1.7;
-            font-size: 15px;
-        }
-
-        /* ================= MODE TABS ================= */
-
-        .mode-area {
-            padding: 25px 35px 0;
-        }
-
-        .mode-tabs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            background: #edf5ee;
-            padding: 7px;
-            border-radius: 18px;
-        }
-
-        .mode-btn {
-            border: none;
-            background: transparent;
-            padding: 15px 12px;
-            border-radius: 13px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 14px;
-            color: #607364;
-            transition: all .25s ease;
-        }
-
-        .mode-btn:hover {
-            color: #176b35;
-        }
-
-        .mode-btn.active {
-            background: white;
-            color: #176b35;
-            box-shadow: 0 5px 18px rgba(34, 83, 44, 0.10);
-        }
-
-        .mode-icon {
-            font-size: 20px;
-            margin-right: 6px;
-        }
-
-        /* ================= PANELS ================= */
-
-        .panel {
-            display: none;
-            padding: 30px 35px 40px;
-        }
-
-        .panel.active {
-            display: block;
-            animation: fadeIn .3s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(7px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .section-title {
-            font-size: 20px;
-            color: #183c23;
-            margin-bottom: 6px;
-        }
-
-        .section-subtitle {
-            color: #728075;
-            font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 22px;
-        }
-
-        /* ================= UPLOAD ================= */
-
-        .upload-box {
-            border: 2px dashed #b9d8be;
-            border-radius: 18px;
-            padding: 30px 20px;
-            text-align: center;
-            background: linear-gradient(180deg, #fbfffb, #f5faf5);
-            transition: .25s ease;
-            cursor: pointer;
-        }
-
-        .upload-box:hover {
-            border-color: #43a858;
-            background: #f5fcf5;
-        }
-
-        .upload-icon {
-            width: 58px;
-            height: 58px;
-            margin: 0 auto 12px;
-            border-radius: 17px;
-            background: #e4f4e6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-        }
-
-        .upload-box strong {
-            display: block;
-            color: #24472c;
-            margin-bottom: 5px;
-        }
-
-        .upload-box span {
-            color: #87958a;
-            font-size: 12px;
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        .preview-wrapper {
-            margin-top: 18px;
-            display: none;
-        }
-
-        .preview-wrapper img {
-            width: 100%;
-            max-height: 400px;
-            object-fit: contain;
-            border-radius: 15px;
-            border: 1px solid #dbe9dc;
-            background: #f5f7f5;
-        }
-
-        /* ================= CONTROLS ================= */
-
-        .action-row {
-            display: flex;
-            gap: 12px;
-            margin-top: 18px;
-            flex-wrap: wrap;
-        }
-
-        .primary-btn {
-            flex: 1;
-            min-width: 170px;
-            border: none;
-            padding: 14px 20px;
-            border-radius: 13px;
-            background: linear-gradient(135deg, #2e9d50, #176b35);
-            color: white;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 9px 20px rgba(46,125,50,0.18);
-            transition: .2s ease;
-        }
-
-        .primary-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 25px rgba(46,125,50,0.24);
-        }
-
-        .grid-control {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 18px;
-            color: #647267;
-            font-size: 14px;
-        }
-
-        select {
-            border: 1px solid #cfe0d1;
-            background: white;
-            border-radius: 10px;
-            padding: 10px 12px;
-            color: #31563a;
-            font-weight: 600;
-            outline: none;
-        }
-
-        /* ================= RESULTS ================= */
-
-        .result {
-            margin-top: 25px;
-        }
-
-        .result-card {
-            border-radius: 18px;
-            padding: 22px;
-            background: linear-gradient(135deg, #f4fbf4, #ffffff);
-            border: 1px solid #dcebdd;
-        }
-
-        .result-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .result-label {
-            font-size: 12px;
-            color: #718078;
-            margin-bottom: 5px;
-        }
-
-        .disease-name {
-            font-size: 22px;
-            color: #173d22;
-            font-weight: 800;
-        }
-
-        .confidence {
-            background: #e3f5e6;
-            color: #21733a;
-            padding: 8px 12px;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 13px;
-        }
-
-        .result-section {
-            margin-top: 20px;
-        }
-
-        .result-section h3 {
-            color: #246b35;
-            font-size: 15px;
-            margin-bottom: 8px;
-        }
-
-        .result-section p {
-            color: #58675c;
-            line-height: 1.65;
-            font-size: 14px;
-        }
-
-        .result-section ol {
-            padding-left: 20px;
-            color: #58675c;
-        }
-
-        .result-section li {
-            margin-bottom: 7px;
-            line-height: 1.5;
-        }
-
-        /* ================= CHAT ================= */
-
-        #chatSection {
-            margin-top: 22px;
-            border-top: 1px solid #e1eae2;
-            padding-top: 22px;
-        }
-
-        .chat-title {
-            color: #24472c;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-
-        .chat-row {
-            display: flex;
-            gap: 9px;
-        }
-
-        #chatInput {
-            flex: 1;
-            border: 1px solid #cfdfd1;
-            border-radius: 12px;
-            padding: 13px;
-            outline: none;
-            font-size: 14px;
-        }
-
-        #chatInput:focus {
-            border-color: #43a858;
-        }
-
-        .chat-btn {
-            border: none;
-            background: #246b35;
-            color: white;
-            padding: 0 18px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 700;
-        }
-
-        #chatAnswer {
-            margin-top: 13px;
-            background: #f3f8f3;
-            padding: 17px;
-            border-radius: 13px;
-            line-height: 1.65;
-            color: #526157;
-        }
-
-        #chatAnswer h2,
-        #chatAnswer h3 {
-            color: #246b35;
-            margin-top: 15px;
-            margin-bottom: 7px;
-            font-size: 16px;
-        }
-
-        #chatAnswer p {
-            margin-bottom: 10px;
-        }
-
-        #chatAnswer ul,
-        #chatAnswer ol {
-            padding-left: 20px;
-        }
-
-        /* ================= FIELD SCAN ================= */
-
-        .field-note {
-            background: linear-gradient(135deg, #fff8df, #fffdf5);
-            border: 1px solid #f0d994;
-            border-radius: 14px;
-            padding: 14px 16px;
-            color: #705c1d;
-            font-size: 12px;
-            line-height: 1.6;
-            margin-bottom: 18px;
-        }
-
-        .field-note strong {
-            color: #594600;
-        }
-
-        #fieldResult {
-            margin-top: 25px;
-        }
-
-        #fieldImg {
-            width: 100%;
-            max-height: 600px;
-            object-fit: contain;
-            border-radius: 17px;
-            border: 1px solid #d8e6d9;
-            background: #f5f7f5;
+    }
+
+    /* ================================
+       RESULTS
+    ================================= */
+
+    #results {
+        display: none;
+        margin-top: 25px;
+    }
+
+    .results-title {
+        color: #07572e;
+        margin-bottom: 15px;
+    }
+
+    .result-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+    }
+
+    .result-card {
+        background: white;
+        padding: 20px;
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    }
+
+    .result-card.full {
+        grid-column: 1 / -1;
+    }
+
+    .result-card h3 {
+        color: #087f42;
+        font-size: 15px;
+        margin-bottom: 10px;
+    }
+
+    .result-card p {
+        line-height: 1.6;
+        font-size: 14px;
+    }
+
+    .diagnosis {
+        font-size: 22px;
+        font-weight: bold;
+        color: #07572e;
+    }
+
+    .confidence {
+        font-size: 24px;
+        font-weight: bold;
+        color: #0b9a4d;
+    }
+
+    .result-card ol,
+    .result-card ul {
+        padding-left: 20px;
+    }
+
+    .result-card li {
+        margin-bottom: 8px;
+        line-height: 1.5;
+        font-size: 14px;
+    }
+
+    /* ================================
+       FIELD IMAGE
+    ================================= */
+
+    #fieldImage {
+        width: 100%;
+        border-radius: 16px;
+        margin-top: 5px;
+    }
+
+    .field-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-top: 15px;
+    }
+
+    .stat {
+        background: #f0faf3;
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+    }
+
+    .stat strong {
+        display: block;
+        font-size: 22px;
+        color: #087f42;
+        margin-bottom: 5px;
+    }
+
+    .stat span {
+        font-size: 12px;
+        color: #64746b;
+    }
+
+    /* ================================
+       CONDITIONS
+    ================================= */
+
+    .condition {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f7faf7;
+        padding: 12px;
+        border-radius: 9px;
+        margin-bottom: 8px;
+    }
+
+    .condition-name {
+        font-weight: bold;
+        color: #245c3d;
+    }
+
+    .condition-count {
+        background: #dcefe2;
+        color: #07572e;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    /* ================================
+       CHAT
+    ================================= */
+
+    #chatSection {
+        display: none;
+        margin-top: 25px;
+        background: #063b20;
+        padding: 22px;
+        border-radius: 18px;
+        color: white;
+    }
+
+    #chatSection h2 {
+        margin-bottom: 7px;
+    }
+
+    .chat-description {
+        font-size: 13px;
+        opacity: 0.75;
+        margin-bottom: 15px;
+    }
+
+    .chat-row {
+        display: flex;
+        gap: 10px;
+    }
+
+    #chatInput {
+        flex: 1;
+        padding: 13px;
+        border: none;
+        border-radius: 9px;
+        outline: none;
+        font-size: 14px;
+    }
+
+    .chat-btn {
+        background: #8ee28e;
+        color: #064522;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 9px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    #chatAnswer {
+        margin-top: 18px;
+        background: white;
+        color: #183b2a;
+        padding: 18px;
+        border-radius: 12px;
+        line-height: 1.65;
+        display: none;
+    }
+
+    #chatAnswer h2,
+    #chatAnswer h3 {
+        color: #087f42;
+        margin-top: 15px;
+        margin-bottom: 7px;
+    }
+
+    #chatAnswer p {
+        margin-bottom: 10px;
+    }
+
+    #chatAnswer li {
+        margin-bottom: 7px;
+    }
+
+    /* ================================
+       DISCLAIMER
+    ================================= */
+
+    .disclaimer {
+        margin-top: 22px;
+        padding: 14px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.12);
+        color: white;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    /* ================================
+       ERROR
+    ================================= */
+
+    .error {
+        color: #a51e1e;
+        background: #ffecec;
+        padding: 13px;
+        border-radius: 9px;
+        margin-top: 15px;
+    }
+
+    /* ================================
+       RESPONSIVE
+    ================================= */
+
+    @media (max-width: 800px) {
+
+        .result-grid {
+            grid-template-columns: 1fr;
         }
 
         .field-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 16px;
+            grid-template-columns: repeat(2, 1fr);
         }
 
-        .stat-card {
-            background: #f6faf6;
-            border: 1px solid #e0ebe1;
-            padding: 16px;
-            border-radius: 14px;
+        header {
+            padding: 16px 4%;
         }
 
-        .stat-number {
-            font-size: 23px;
-            font-weight: 800;
-            color: #216c35;
+        .header-badge {
+            display: none;
         }
 
-        .stat-label {
-            font-size: 11px;
-            color: #78857c;
-            margin-top: 4px;
+        main {
+            width: 95%;
+            margin-top: 22px;
         }
 
-        .field-status {
-            margin-top: 15px;
-            padding: 15px;
-            background: #eef7ef;
-            border-left: 4px solid #31924b;
-            border-radius: 10px;
-            color: #365a3d;
-            font-size: 13px;
-            line-height: 1.5;
+    }
+
+    @media (max-width: 550px) {
+
+        .mode-tabs {
+            grid-template-columns: 1fr;
         }
 
-        /* ================= LOADING ================= */
-
-        .loading {
-            text-align: center;
-            padding: 25px;
-            color: #607464;
+        .workspace {
+            padding: 14px;
         }
 
-        .spinner {
-            width: 30px;
-            height: 30px;
-            border: 3px solid #d7ead9;
-            border-top-color: #2e9d50;
-            border-radius: 50%;
-            margin: 0 auto 10px;
-            animation: spin .8s linear infinite;
+        .upload-panel {
+            padding: 20px 15px;
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+        .chat-row {
+            flex-direction: column;
         }
 
-        /* ================= FOOTER ================= */
-
-        .footer {
-            text-align: center;
-            padding: 0 20px 30px;
-            color: #89958d;
-            font-size: 11px;
+        .field-stats {
+            grid-template-columns: 1fr 1fr;
         }
 
-        /* ================= MOBILE ================= */
-
-        @media (max-width: 650px) {
-
-            .topbar {
-                padding: 14px 5%;
-            }
-
-            .status-pill {
-                display: none;
-            }
-
-            .dashboard {
-                width: 96%;
-                border-radius: 22px;
-                margin-top: 5px;
-            }
-
-            .hero {
-                padding: 35px 25px;
-            }
-
-            .hero h1 {
-                font-size: 32px;
-            }
-
-            .mode-area {
-                padding: 18px 18px 0;
-            }
-
-            .panel {
-                padding: 25px 18px 30px;
-            }
-
-            .mode-btn {
-                font-size: 12px;
-                padding: 13px 6px;
-            }
-
-            .field-stats {
-                grid-template-columns: 1fr;
-            }
-
-            .chat-row {
-                flex-direction: column;
-            }
-
-            .chat-btn {
-                padding: 12px;
-            }
-
-            .action-row {
-                flex-direction: column;
-            }
-
-            .primary-btn {
-                width: 100%;
-            }
+        .controls {
+            flex-direction: column;
         }
-    </style>
-</head>
 
-<body>
+        .controls button,
+        .controls select {
+            width: 100%;
+        }
 
-<header class="topbar">
-    <div class="brand">
-        <div class="brand-icon">🌱</div>
-        CropGuard AI
+    }
+
+</style>
+
+</head><body><header><div class="brand">
+
+    <div class="brand-icon">
+        🌱
     </div>
 
-    <div class="status-pill">
-        <span class="status-dot"></span>
-        AI Detection System
+    <div>
+        <h2>CropGuard</h2>
+        <span>Crop Disease Detection & Management</span>
     </div>
-</header>
+
+</div>
+
+<div class="header-badge">
+    Machine Learning-Based Agricultural System
+</div>
+
+</header><main><section class="hero">
+
+    <h1>Protect Your Crops 🌾</h1>
+
+    <p>
+        Detect crop diseases, view recommended management measures,
+        and interact with the agricultural assistant using your
+        diagnosis results.
+    </p>
+
+</section>
 
 
-<main class="dashboard">
+<!-- MODE SELECTION -->
 
-    <!-- HERO -->
-    <section class="hero">
-        <div class="hero-content">
-            <div class="hero-badge">🌿 Intelligent Crop Health Monitoring</div>
+<div class="mode-tabs">
 
-            <h1>Crop Disease Detection</h1>
+    <button
+        class="mode-tab active"
+        id="singleTab"
+        onclick="switchMode('single')"
+    >
+
+        <strong>🌿 Single Leaf Analysis</strong>
+
+        <small>
+            Analyse one crop leaf image.
+        </small>
+
+    </button>
+
+
+    <button
+        class="mode-tab"
+        id="fieldTab"
+        onclick="switchMode('field')"
+    >
+
+        <strong>🌾 Field Screening</strong>
+
+        <small>
+            Screen a wider image containing multiple plants or leaves.
+        </small>
+
+    </button>
+
+</div>
+
+
+<!-- WORKSPACE -->
+
+<section class="workspace">
+
+    <!-- SINGLE MODE -->
+
+    <div id="singleMode">
+
+        <div class="upload-panel">
+
+            <div class="upload-icon">
+                🍃
+            </div>
+
+            <h2>Single Leaf Analysis</h2>
 
             <p>
-                Detect crop diseases from individual leaf images or screen
-                wider crop areas using the Precision Agriculture Field
-                Screening Module.
+                Upload a clear image of a crop leaf to obtain
+                a machine learning prediction and related
+                management recommendations.
             </p>
+
+            <input
+                type="file"
+                id="imageInput"
+                accept="image/*"
+            >
+
+            <div class="preview-box" id="singlePreview">
+
+                <img id="preview">
+
+            </div>
+
+            <div class="controls">
+
+                <button
+                    class="primary-btn"
+                    onclick="predict()"
+                >
+                    Analyse Leaf
+                </button>
+
+            </div>
+
         </div>
-    </section>
 
-
-    <!-- MODE SELECTOR -->
-    <div class="mode-area">
-        <div class="mode-tabs">
-
-            <button class="mode-btn active" id="singleTab"
-                    onclick="switchMode('single')">
-                <span class="mode-icon">🔬</span>
-                Single Leaf
-            </button>
-
-            <button class="mode-btn" id="fieldTab"
-                    onclick="switchMode('field')">
-                <span class="mode-icon">🌾</span>
-                Field Scan
-            </button>
-
-        </div>
     </div>
 
 
-    <!-- ================= SINGLE LEAF PANEL ================= -->
+    <!-- FIELD MODE -->
 
-    <section class="panel active" id="singlePanel">
+    <div
+        id="fieldMode"
+        style="display:none;"
+    >
 
-        <h2 class="section-title">Individual Leaf Diagnosis</h2>
+        <div class="upload-panel">
 
-        <p class="section-subtitle">
-            Upload a clear image of a crop leaf. The EfficientNet model will
-            analyze the image and provide a disease prediction and management
-            recommendations.
-        </p>
+            <div class="upload-icon">
+                🚁
+            </div>
 
-        <label class="upload-box" for="imageInput">
+            <h2>Precision Agriculture Field Screening</h2>
 
-            <div class="upload-icon">📷</div>
+            <p>
+                Upload a wider image showing several plants or leaves.
+                The system divides the image into regions and applies
+                the existing crop disease classifier to each region.
+            </p>
 
-            <strong>Upload a leaf image</strong>
+            <input
+                type="file"
+                id="fieldInput"
+                accept="image/*"
+            >
 
-            <span>
-                Click here to choose an image from your device
-            </span>
+            <div class="preview-box" id="fieldPreview">
 
-        </label>
+                <img id="fieldPreviewImage">
 
-        <input type="file" id="imageInput" accept="image/*">
+            </div>
+
+            <div class="controls">
+
+                <select id="gridSize">
+
+                    <option value="3">
+                        3 × 3 Grid (9 regions)
+                    </option>
+
+                    <option value="4" selected>
+                        4 × 4 Grid (16 regions)
+                    </option>
+
+                    <option value="5">
+                        5 × 5 Grid (25 regions)
+                    </option>
+
+                    <option value="6">
+                        6 × 6 Grid (36 regions)
+                    </option>
+
+                </select>
+
+                <button
+                    class="primary-btn"
+                    onclick="scanField()"
+                >
+                    Scan Field
+                </button>
+
+            </div>
 
 
-        <div class="preview-wrapper" id="singlePreviewWrapper">
-            <img id="preview" alt="Leaf preview">
+            <div class="field-note">
+
+                <strong>Important:</strong>
+                The underlying classifier was trained and evaluated
+                using individual leaf images. Field screening applies
+                the same classifier to regions of a wider image.
+                This demonstrates a field-screening architecture and
+                does not claim that the model was trained on drone
+                imagery.
+
+            </div>
+
         </div>
 
+    </div>
 
-        <div class="action-row">
 
-            <button class="primary-btn" onclick="predict()">
-                🔍 Analyze Leaf
-            </button>
+    <!-- LOADING -->
+
+    <div
+        class="loading"
+        id="loading"
+    >
+
+        <div class="spinner"></div>
+
+        <span id="loadingText">
+            Processing image...
+        </span>
+
+    </div>
+
+
+    <!-- RESULTS -->
+
+    <section id="results">
+
+        <h2 class="results-title">
+            Analysis Results
+        </h2>
+
+        <div class="result-grid">
+
+            <!-- DIAGNOSIS -->
+
+            <div class="result-card">
+
+                <h3>🌿 Disease Prediction</h3>
+
+                <div
+                    class="diagnosis"
+                    id="diseaseResult"
+                >
+                    --
+                </div>
+
+            </div>
+
+
+            <!-- CONFIDENCE -->
+
+            <div class="result-card">
+
+                <h3>📊 Confidence</h3>
+
+                <div
+                    class="confidence"
+                    id="confidenceResult"
+                >
+                    --
+                </div>
+
+            </div>
+
+
+            <!-- TYPE -->
+
+            <div class="result-card">
+
+                <h3>🔬 Analysis Type</h3>
+
+                <p id="analysisType">
+                    Single Leaf
+                </p>
+
+            </div>
+
+
+            <!-- SYMPTOMS -->
+
+            <div class="result-card full">
+
+                <h3>🔎 Symptoms / Observations</h3>
+
+                <p id="symptomsResult"></p>
+
+            </div>
+
+
+            <!-- PESTICIDE -->
+
+            <div class="result-card">
+
+                <h3>💊 Pesticide Recommendation</h3>
+
+                <ul id="pesticideResult"></ul>
+
+            </div>
+
+
+            <!-- MANAGEMENT -->
+
+            <div class="result-card">
+
+                <h3>🛠️ Management Steps</h3>
+
+                <ul id="managementResult"></ul>
+
+            </div>
+
+
+            <!-- FIELD RESULTS -->
+
+            <div
+                class="result-card full"
+                id="fieldResultsCard"
+                style="display:none;"
+            >
+
+                <h3>🗺️ Field Screening Map</h3>
+
+                <img
+                    id="fieldImage"
+                    alt="Annotated field screening result"
+                >
+
+                <div class="field-stats">
+
+                    <div class="stat">
+                        <strong id="totalRegions">0</strong>
+                        <span>Regions Scanned</span>
+                    </div>
+
+                    <div class="stat">
+                        <strong id="healthyRegions">0</strong>
+                        <span>Healthy Regions</span>
+                    </div>
+
+                    <div class="stat">
+                        <strong id="diseasedRegions">0</strong>
+                        <span>Flagged Regions</span>
+                    </div>
+
+                    <div class="stat">
+                        <strong id="averageConfidence">0%</strong>
+                        <span>Average Confidence</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- DETECTED CONDITIONS -->
+
+            <div
+                class="result-card full"
+                id="conditionsCard"
+                style="display:none;"
+            >
+
+                <h3>🧾 Detected Conditions</h3>
+
+                <div id="conditionsList"></div>
+
+            </div>
+
+
+            <!-- FIELD STATUS -->
+
+            <div
+                class="result-card full"
+                id="fieldStatusCard"
+                style="display:none;"
+            >
+
+                <h3>📋 Field Screening Summary</h3>
+
+                <p id="fieldStatus"></p>
+
+            </div>
 
         </div>
-
-
-        <div id="result"></div>
 
 
         <!-- CHAT -->
 
-        <div id="chatSection" style="display:none;">
+        <section id="chatSection">
 
-            <div class="chat-title">
-                💬 Ask the Agricultural Assistant
-            </div>
+            <h2>💬 Ask the Agricultural Assistant</h2>
+
+            <p class="chat-description">
+
+                Ask questions about the prediction or field
+                screening results. The response is based on
+                the information generated by the system.
+
+            </p>
 
             <div class="chat-row">
 
                 <input
                     type="text"
                     id="chatInput"
-                    placeholder="e.g. How can I prevent this disease?"
+                    placeholder="e.g. What should I do about the affected plants?"
                 >
 
-                <button class="chat-btn" onclick="askQuestion()">
+                <button
+                    class="chat-btn"
+                    onclick="askQuestion()"
+                >
                     Ask
                 </button>
 
@@ -756,597 +1000,954 @@
 
             <div id="chatAnswer"></div>
 
-        </div>
+        </section>
 
     </section>
 
-
-    <!-- ================= FIELD SCAN PANEL ================= -->
-
-    <section class="panel" id="fieldPanel">
-
-        <h2 class="section-title">
-            Precision Agriculture Field Screening
-        </h2>
-
-        <p class="section-subtitle">
-            Upload a wider image containing several plants or leaves.
-            The system divides the image into regions and screens each
-            region using the existing EfficientNet disease classifier.
-        </p>
+</section>
 
 
-        <div class="field-note">
+<div class="disclaimer">
 
-            <strong>⚠️ Research Note:</strong>
+    <strong>System note:</strong>
+    Disease results are machine learning predictions based on
+    the trained model and should be considered screening results.
+    Pesticide and management recommendations should be considered
+    alongside appropriate agricultural guidance and product labels.
 
-            The underlying classifier was trained and evaluated using
-            individual leaf images from the PlantVillage dataset.
-            This module demonstrates field-level screening by applying
-            the existing classifier to regions of a wider crop image.
-            Drone or aerial deployment would require additional aerial
-            imagery training and validation.
-
-        </div>
-
-
-        <label class="upload-box" for="fieldInput">
-
-            <div class="upload-icon">🚁</div>
-
-            <strong>Upload a field image</strong>
-
-            <span>
-                Use a wider photo showing several plants or leaves
-            </span>
-
-        </label>
-
-        <input type="file" id="fieldInput" accept="image/*">
-
-
-        <div class="preview-wrapper" id="fieldPreviewWrapper">
-            <img id="fieldPreview" alt="Field image preview">
-        </div>
-
-
-        <div class="grid-control">
-
-            <label for="gridSize">
-                Screening grid:
-            </label>
-
-            <select id="gridSize">
-
-                <option value="3">
-                    3 × 3 — 9 regions
-                </option>
-
-                <option value="4" selected>
-                    4 × 4 — 16 regions
-                </option>
-
-                <option value="5">
-                    5 × 5 — 25 regions
-                </option>
-
-                <option value="6">
-                    6 × 6 — 36 regions
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <div class="action-row">
-
-            <button class="primary-btn" onclick="scanField()">
-                🌾 Scan Field
-            </button>
-
-        </div>
-
-
-        <div id="fieldResult"></div>
-
-    </section>
-
-</main>
-
-
-<div class="footer">
-    CropGuard AI • AI-Based Crop Disease Detection & Precision Agriculture Screening
 </div>
 
+</main><script>
 
-<script>
+    /* =========================================================
+       GLOBAL VARIABLES
+    ========================================================= */
 
-    /* ================= MODE SWITCHING ================= */
-
-    function switchMode(mode) {
-
-        const singlePanel =
-            document.getElementById("singlePanel");
-
-        const fieldPanel =
-            document.getElementById("fieldPanel");
-
-        const singleTab =
-            document.getElementById("singleTab");
-
-        const fieldTab =
-            document.getElementById("fieldTab");
-
-
-        if (mode === "single") {
-
-            singlePanel.classList.add("active");
-            fieldPanel.classList.remove("active");
-
-            singleTab.classList.add("active");
-            fieldTab.classList.remove("active");
-
-        } else {
-
-            singlePanel.classList.remove("active");
-            fieldPanel.classList.add("active");
-
-            singleTab.classList.remove("active");
-            fieldTab.classList.add("active");
-
-        }
-
-        window.scrollTo({
-            top: document.querySelector(".dashboard").offsetTop - 10,
-            behavior: "smooth"
-        });
-    }
-
-
-    /* ================= SINGLE IMAGE ================= */
-
-    const imageInput =
-        document.getElementById("imageInput");
-
-    const preview =
-        document.getElementById("preview");
-
-    const singlePreviewWrapper =
-        document.getElementById("singlePreviewWrapper");
-
-    const resultDiv =
-        document.getElementById("result");
-
-    const chatSection =
-        document.getElementById("chatSection");
-
-    const chatInput =
-        document.getElementById("chatInput");
-
-    const chatAnswer =
-        document.getElementById("chatAnswer");
+    let currentMode = "single";
 
     let currentDisease = "";
 
+    let currentFieldContext = "";
 
-    imageInput.addEventListener("change", function() {
+    let fieldData = null;
 
-        const file = this.files[0];
 
-        if (!file) return;
+    /* =========================================================
+       MODE SWITCHING
+    ========================================================= */
 
-        preview.src =
-            URL.createObjectURL(file);
+    function switchMode(mode) {
 
-        singlePreviewWrapper.style.display =
-            "block";
+        currentMode = mode;
 
-        resultDiv.innerHTML = "";
+        document.getElementById("results").style.display = "none";
 
-        chatSection.style.display = "none";
+        document.getElementById("chatSection").style.display = "none";
 
-        chatAnswer.innerHTML = "";
+        document.getElementById("chatAnswer").style.display = "none";
 
-        currentDisease = "";
-    });
+        document.getElementById("chatAnswer").innerHTML = "";
 
+        if (mode === "single") {
+
+            document.getElementById("singleMode").style.display = "block";
+
+            document.getElementById("fieldMode").style.display = "none";
+
+            document.getElementById("singleTab").classList.add("active");
+
+            document.getElementById("fieldTab").classList.remove("active");
+
+        } else {
+
+            document.getElementById("singleMode").style.display = "none";
+
+            document.getElementById("fieldMode").style.display = "block";
+
+            document.getElementById("singleTab").classList.remove("active");
+
+            document.getElementById("fieldTab").classList.add("active");
+
+        }
+
+    }
+
+
+    /* =========================================================
+       SINGLE IMAGE PREVIEW
+    ========================================================= */
+
+    document
+        .getElementById("imageInput")
+        .addEventListener("change", function() {
+
+            const file = this.files[0];
+
+            if (!file) return;
+
+            const preview =
+                document.getElementById("preview");
+
+            preview.src =
+                URL.createObjectURL(file);
+
+            document
+                .getElementById("singlePreview")
+                .style.display = "block";
+
+        });
+
+
+    /* =========================================================
+       FIELD IMAGE PREVIEW
+    ========================================================= */
+
+    document
+        .getElementById("fieldInput")
+        .addEventListener("change", function() {
+
+            const file = this.files[0];
+
+            if (!file) return;
+
+            const preview =
+                document.getElementById(
+                    "fieldPreviewImage"
+                );
+
+            preview.src =
+                URL.createObjectURL(file);
+
+            document
+                .getElementById("fieldPreview")
+                .style.display = "block";
+
+        });
+
+
+    /* =========================================================
+       LOADING
+    ========================================================= */
+
+    function showLoading(message) {
+
+        document
+            .getElementById("loading")
+            .style.display = "block";
+
+        document
+            .getElementById("loadingText")
+            .textContent = message;
+
+    }
+
+
+    function hideLoading() {
+
+        document
+            .getElementById("loading")
+            .style.display = "none";
+
+    }
+
+
+    /* =========================================================
+       DISPLAY LIST
+    ========================================================= */
+
+    function populateList(elementId, items) {
+
+        const element =
+            document.getElementById(elementId);
+
+        element.innerHTML = "";
+
+        if (!items || items.length === 0) {
+
+            const li =
+                document.createElement("li");
+
+            li.textContent =
+                "No additional recommendation available.";
+
+            element.appendChild(li);
+
+            return;
+
+        }
+
+        items.forEach(function(item) {
+
+            const li =
+                document.createElement("li");
+
+            li.textContent = item;
+
+            element.appendChild(li);
+
+        });
+
+    }
+
+
+    /* =========================================================
+       SINGLE LEAF PREDICTION
+    ========================================================= */
 
     function predict() {
 
         const file =
-            imageInput.files[0];
+            document.getElementById(
+                "imageInput"
+            ).files[0];
 
         if (!file) {
 
-            resultDiv.innerHTML =
-                "<p style='color:#c62828;margin-top:15px;'>Please select a leaf image first.</p>";
+            alert(
+                "Please select a crop leaf image first."
+            );
 
             return;
+
         }
 
+        showLoading(
+            "Analysing crop leaf..."
+        );
 
-        resultDiv.innerHTML = `
-            <div class="loading">
-                <div class="spinner"></div>
-                Analyzing leaf image...
-            </div>
-        `;
-
+        document
+            .getElementById("results")
+            .style.display = "none";
 
         const formData =
             new FormData();
 
-        formData.append("file", file);
+        formData.append(
+            "file",
+            file
+        );
 
+        fetch(
+            "/predict",
+            {
+                method: "POST",
+                body: formData
+            }
+        )
 
-        fetch("/predict", {
-            method: "POST",
-            body: formData
+        .then(function(response) {
+
+            return response.json();
+
         })
 
-        .then(response => response.json())
+        .then(function(data) {
 
-        .then(data => {
+            hideLoading();
 
             if (data.error) {
 
-                resultDiv.innerHTML =
-                    `<p style="color:#c62828;">${data.error}</p>`;
+                alert(data.error);
 
                 return;
+
             }
 
+            currentMode = "single";
 
             currentDisease =
                 data.disease;
 
+            currentFieldContext = "";
 
-            const stepsHtml =
+            fieldData = null;
+
+
+            /* -----------------------------
+               BASIC RESULT
+            ----------------------------- */
+
+            document
+                .getElementById("diseaseResult")
+                .textContent =
+                    data.label || data.disease;
+
+            document
+                .getElementById("confidenceResult")
+                .textContent =
+                    data.confidence;
+
+            document
+                .getElementById("analysisType")
+                .textContent =
+                    "Single Leaf Analysis";
+
+
+            /* -----------------------------
+               SYMPTOMS
+            ----------------------------- */
+
+            document
+                .getElementById("symptomsResult")
+                .textContent =
+                    data.symptoms;
+
+
+            /* -----------------------------
+               RECOMMENDATIONS
+            ----------------------------- */
+
+            populateList(
+                "pesticideResult",
                 data.recommendation_steps
-                    .map(step => `<li>${step}</li>`)
-                    .join("");
+            );
+
+            populateList(
+                "managementResult",
+                data.recommendation_steps
+            );
 
 
-            resultDiv.innerHTML = `
-
-                <div class="result-card">
-
-                    <div class="result-header">
-
-                        <div>
-
-                            <div class="result-label">
-                                DETECTION RESULT
-                            </div>
-
-                            <div class="disease-name">
-                                ${data.disease}
-                            </div>
-
-                        </div>
-
-                        <div class="confidence">
-                            ${data.confidence}
-                        </div>
-
-                    </div>
+            /*
+             * The backend currently returns the
+             * recommendation list as one combined
+             * management/pesticide list.
+             *
+             * We display it in both sections so
+             * the existing recommendation system
+             * remains visible.
+             */
 
 
-                    <div class="result-section">
+            /* -----------------------------
+               HIDE FIELD-SPECIFIC SECTIONS
+            ----------------------------- */
 
-                        <h3>🩺 Symptoms</h3>
+            document
+                .getElementById("fieldResultsCard")
+                .style.display = "none";
 
-                        <p>
-                            ${data.symptoms}
-                        </p>
+            document
+                .getElementById("conditionsCard")
+                .style.display = "none";
 
-                    </div>
-
-
-                    <div class="result-section">
-
-                        <h3>
-                            🌿 Recommended Management Steps
-                        </h3>
-
-                        <ol>
-                            ${stepsHtml}
-                        </ol>
-
-                    </div>
-
-                </div>
-            `;
+            document
+                .getElementById("fieldStatusCard")
+                .style.display = "none";
 
 
-            chatSection.style.display =
-                "block";
+            /* -----------------------------
+               SHOW RESULTS
+            ----------------------------- */
+
+            document
+                .getElementById("results")
+                .style.display = "block";
+
+            document
+                .getElementById("chatSection")
+                .style.display = "block";
+
+
+            window.scrollTo({
+                top:
+                    document
+                        .getElementById("results")
+                        .offsetTop - 20,
+                behavior: "smooth"
+            });
 
         })
 
-        .catch(() => {
+        .catch(function(error) {
 
-            resultDiv.innerHTML =
-                "<p style='color:#c62828;'>Error connecting to the server.</p>";
+            hideLoading();
 
-        });
-    }
+            console.error(error);
 
-
-    /* ================= AGRICULTURAL CHAT ================= */
-
-    function askQuestion() {
-
-        const question =
-            chatInput.value.trim();
-
-        if (!question) return;
-
-
-        chatAnswer.innerHTML = `
-            <div class="loading">
-                <div class="spinner"></div>
-                Agricultural Assistant is thinking...
-            </div>
-        `;
-
-
-        fetch("/chat", {
-
-            method: "POST",
-
-            headers: {
-                "Content-Type":
-                    "application/json"
-            },
-
-            body: JSON.stringify({
-
-                disease: currentDisease,
-
-                question: question
-
-            })
-
-        })
-
-        .then(response => response.json())
-
-        .then(data => {
-
-            if (data.error) {
-
-                chatAnswer.innerHTML =
-                    `<p style="color:#c62828;">${data.error}</p>`;
-
-            } else {
-
-                chatAnswer.innerHTML =
-                    marked.parse(data.answer);
-
-            }
-
-        })
-
-        .catch(() => {
-
-            chatAnswer.innerHTML =
-                "<p style='color:#c62828;'>Error connecting to the server.</p>";
+            alert(
+                "Error connecting to the server."
+            );
 
         });
 
     }
 
 
-    /* ================= FIELD SCAN ================= */
-
-    const fieldInput =
-        document.getElementById("fieldInput");
-
-    const fieldPreview =
-        document.getElementById("fieldPreview");
-
-    const fieldPreviewWrapper =
-        document.getElementById("fieldPreviewWrapper");
-
-    const gridSize =
-        document.getElementById("gridSize");
-
-    const fieldResult =
-        document.getElementById("fieldResult");
-
-
-    fieldInput.addEventListener("change", function() {
-
-        const file = this.files[0];
-
-        if (!file) return;
-
-        fieldPreview.src =
-            URL.createObjectURL(file);
-
-        fieldPreviewWrapper.style.display =
-            "block";
-
-        fieldResult.innerHTML = "";
-
-    });
-
+    /* =========================================================
+       FIELD SCAN
+    ========================================================= */
 
     function scanField() {
 
         const file =
-            fieldInput.files[0];
+            document
+                .getElementById("fieldInput")
+                .files[0];
 
         if (!file) {
 
-            fieldResult.innerHTML =
-                "<p style='color:#c62828;margin-top:15px;'>Please select a field image first.</p>";
+            alert(
+                "Please select a field image first."
+            );
 
             return;
+
         }
 
+        const grid =
+            document
+                .getElementById("gridSize")
+                .value;
 
-        fieldResult.innerHTML = `
-            <div class="loading">
+        showLoading(
+            "Scanning field regions... This may take a little longer."
+        );
 
-                <div class="spinner"></div>
-
-                Screening field regions...
-
-                <br>
-
-                <small>
-                    This may take a little longer because
-                    multiple regions are being analyzed.
-                </small>
-
-            </div>
-        `;
-
-
-        const n =
-            gridSize.value;
+        document
+            .getElementById("results")
+            .style.display = "none";
 
 
         const formData =
             new FormData();
 
-        formData.append("file", file);
+        formData.append(
+            "file",
+            file
+        );
 
-        formData.append("rows", n);
+        formData.append(
+            "rows",
+            grid
+        );
 
-        formData.append("cols", n);
+        formData.append(
+            "cols",
+            grid
+        );
 
 
-        fetch("/field_scan", {
+        fetch(
+            "/field_scan",
+            {
+                method: "POST",
+                body: formData
+            }
+        )
 
-            method: "POST",
+        .then(function(response) {
 
-            body: formData
+            return response.json();
 
         })
 
-        .then(response => response.json())
+        .then(function(data) {
 
-        .then(data => {
+            hideLoading();
 
             if (data.error) {
 
-                fieldResult.innerHTML =
-                    `<p style="color:#c62828;">${data.error}</p>`;
+                alert(data.error);
 
                 return;
+
             }
 
 
-            const mostCommon =
-                data.most_common_disease ||
-                "None";
+            currentMode = "field";
+
+            fieldData = data;
+
+            currentDisease =
+                data.most_common_disease || "Field Screening";
+
+            currentFieldContext =
+                buildFieldContext(data);
 
 
-            fieldResult.innerHTML = `
+            /* -----------------------------
+               BASIC SUMMARY
+            ----------------------------- */
 
-                <div>
-
-                    <img
-                        id="fieldImg"
-                        src="data:image/jpeg;base64,${data.image}"
-                        alt="Annotated field scan result"
-                    >
-
-
-                    <div class="field-stats">
-
-                        <div class="stat-card">
-
-                            <div class="stat-number">
-                                ${data.total_tiles}
-                            </div>
-
-                            <div class="stat-label">
-                                REGIONS SCANNED
-                            </div>
-
-                        </div>
+            document
+                .getElementById("diseaseResult")
+                .textContent =
+                    data.most_common_disease ||
+                    "No disease signals detected";
 
 
-                        <div class="stat-card">
-
-                            <div class="stat-number">
-                                ${data.healthy_pct}%
-                            </div>
-
-                            <div class="stat-label">
-                                HEALTHY REGIONS
-                            </div>
-
-                        </div>
+            document
+                .getElementById("confidenceResult")
+                .textContent =
+                    data.average_confidence + "%";
 
 
-                        <div class="stat-card">
-
-                            <div class="stat-number">
-                                ${data.diseased_pct}%
-                            </div>
-
-                            <div class="stat-label">
-                                POSSIBLY DISEASED REGIONS
-                            </div>
-
-                        </div>
-
-                    </div>
+            document
+                .getElementById("analysisType")
+                .textContent =
+                    "Precision Agriculture Field Screening";
 
 
-                    <div class="result-card"
-                         style="margin-top:15px;">
+            /* -----------------------------
+               FIELD SYMPTOMS
+            ----------------------------- */
 
-                        <div class="result-section">
+            if (
+                data.field_symptoms &&
+                data.field_symptoms.length > 0
+            ) {
 
-                            <h3>
-                                🔎 Most Common Condition Flagged
-                            </h3>
+                document
+                    .getElementById("symptomsResult")
+                    .textContent =
+                        data.field_symptoms.join(" ");
 
-                            <p>
-                                <strong>
-                                    ${mostCommon}
-                                </strong>
-                            </p>
+            } else {
 
-                        </div>
+                document
+                    .getElementById("symptomsResult")
+                    .textContent =
+                        "No disease symptoms were associated with the scanned regions.";
+
+            }
 
 
-                        <div class="field-status">
+            /* -----------------------------
+               FIELD RECOMMENDATIONS
+            ----------------------------- */
 
-                            <strong>
-                                Field Screening Status
-                            </strong>
+            populateList(
+                "pesticideResult",
+                data.field_recommendations
+            );
 
-                            <br>
+            populateList(
+                "managementResult",
+                data.field_recommendations
+            );
 
-                            ${data.field_status}
 
-                        </div>
+            /* -----------------------------
+               FIELD IMAGE
+            ----------------------------- */
 
-                    </div>
+            document
+                .getElementById("fieldImage")
+                .src =
+                    "data:image/jpeg;base64," +
+                    data.image;
 
-                </div>
-            `;
+
+            /* -----------------------------
+               FIELD STATS
+            ----------------------------- */
+
+            document
+                .getElementById("totalRegions")
+                .textContent =
+                    data.total_tiles;
+
+            document
+                .getElementById("healthyRegions")
+                .textContent =
+                    data.healthy_count +
+                    " (" +
+                    data.healthy_pct +
+                    "%)";
+
+            document
+                .getElementById("diseasedRegions")
+                .textContent =
+                    data.diseased_count +
+                    " (" +
+                    data.diseased_pct +
+                    "%)";
+
+            document
+                .getElementById("averageConfidence")
+                .textContent =
+                    data.average_confidence +
+                    "%";
+
+
+            /* -----------------------------
+               CONDITIONS
+            ----------------------------- */
+
+            const conditionsList =
+                document
+                    .getElementById(
+                        "conditionsList"
+                    );
+
+            conditionsList.innerHTML = "";
+
+            if (
+                data.detected_conditions &&
+                data.detected_conditions.length > 0
+            ) {
+
+                data.detected_conditions
+                    .forEach(function(condition) {
+
+                        const div =
+                            document.createElement(
+                                "div"
+                            );
+
+                        div.className =
+                            "condition";
+
+                        div.innerHTML = `
+
+                            <span class="condition-name">
+                                ${condition.disease}
+                            </span>
+
+                            <span class="condition-count">
+                                ${condition.regions}
+                                region(s)
+                                ·
+                                ${condition.percentage}%
+                            </span>
+
+                        `;
+
+                        conditionsList
+                            .appendChild(div);
+
+                    });
+
+                document
+                    .getElementById(
+                        "conditionsCard"
+                    )
+                    .style.display = "block";
+
+            } else {
+
+                document
+                    .getElementById(
+                        "conditionsCard"
+                    )
+                    .style.display = "none";
+
+            }
+
+
+            /* -----------------------------
+               FIELD STATUS
+            ----------------------------- */
+
+            document
+                .getElementById(
+                    "fieldStatus"
+                )
+                .textContent =
+                    data.field_status;
+
+            document
+                .getElementById(
+                    "fieldStatusCard"
+                )
+                .style.display =
+                    "block";
+
+
+            /* -----------------------------
+               SHOW FIELD CARD
+            ----------------------------- */
+
+            document
+                .getElementById(
+                    "fieldResultsCard"
+                )
+                .style.display =
+                    "block";
+
+
+            /* -----------------------------
+               SHOW EVERYTHING
+            ----------------------------- */
+
+            document
+                .getElementById(
+                    "results"
+                )
+                .style.display =
+                    "block";
+
+            document
+                .getElementById(
+                    "chatSection"
+                )
+                .style.display =
+                    "block";
+
+
+            window.scrollTo({
+
+                top:
+                    document
+                        .getElementById(
+                            "results"
+                        )
+                        .offsetTop - 20,
+
+                behavior: "smooth"
+
+            });
 
         })
 
-        .catch(() => {
+        .catch(function(error) {
 
-            fieldResult.innerHTML =
-                "<p style='color:#c62828;'>Error connecting to the server.</p>";
+            hideLoading();
+
+            console.error(error);
+
+            alert(
+                "Error connecting to the server."
+            );
 
         });
 
     }
 
-</script>
 
-</body>
+    /* =========================================================
+       BUILD FIELD CONTEXT FOR CHAT
+    ========================================================= */
+
+    function buildFieldContext(data) {
+
+        let context = "";
+
+        context +=
+            "Analysis type: Precision Agriculture Field Screening\n";
+
+        context +=
+            "Total regions scanned: " +
+            data.total_tiles +
+            "\n";
+
+        context +=
+            "Healthy regions: " +
+            data.healthy_count +
+            " (" +
+            data.healthy_pct +
+            "%)\n";
+
+        context +=
+            "Flagged regions: " +
+            data.diseased_count +
+            " (" +
+            data.diseased_pct +
+            "%)\n";
+
+        context +=
+            "Average model confidence: " +
+            data.average_confidence +
+            "%\n";
+
+        context +=
+            "Most common condition: " +
+            (
+                data.most_common_disease ||
+                "None"
+            ) +
+            "\n";
+
+
+        if (
+            data.detected_conditions &&
+            data.detected_conditions.length > 0
+        ) {
+
+            context +=
+                "Detected conditions:\n";
+
+            data.detected_conditions
+                .forEach(function(condition) {
+
+                    context +=
+                        "- " +
+                        condition.disease +
+                        ": " +
+                        condition.regions +
+                        " region(s), " +
+                        condition.percentage +
+                        "%\n";
+
+                });
+
+        }
+
+
+        if (
+            data.field_symptoms &&
+            data.field_symptoms.length > 0
+        ) {
+
+            context +=
+                "Associated symptoms:\n";
+
+            data.field_symptoms
+                .forEach(function(symptom) {
+
+                    context +=
+                        "- " +
+                        symptom +
+                        "\n";
+
+                });
+
+        }
+
+
+        return context;
+
+    }
+
+
+    /* =========================================================
+       FARMER CHAT
+    ========================================================= */
+
+    function askQuestion() {
+
+        const question =
+            document
+                .getElementById(
+                    "chatInput"
+                )
+                .value
+                .trim();
+
+        if (!question) {
+
+            return;
+
+        }
+
+
+        const answerBox =
+            document
+                .getElementById(
+                    "chatAnswer"
+                );
+
+        answerBox.style.display =
+            "block";
+
+        answerBox.innerHTML =
+            "<p>Thinking...</p>";
+
+
+        const payload = {
+
+            disease:
+                currentDisease,
+
+            question:
+                question
+
+        };
+
+
+        /*
+         * If the farmer is talking about
+         * a field scan, send the field
+         * screening information as context.
+         */
+
+        if (
+            currentMode === "field" &&
+            currentFieldContext
+        ) {
+
+            payload.field_context =
+                currentFieldContext;
+
+        }
+
+
+        fetch(
+            "/chat",
+            {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify(
+                        payload
+                    )
+
+            }
+        )
+
+        .then(function(response) {
+
+            return response.json();
+
+        })
+
+        .then(function(data) {
+
+            if (data.error) {
+
+                answerBox.innerHTML =
+                    `<p class="error">${data.error}</p>`;
+
+                return;
+
+            }
+
+            answerBox.innerHTML =
+                marked.parse(
+                    data.answer
+                );
+
+        })
+
+        .catch(function(error) {
+
+            console.error(error);
+
+            answerBox.innerHTML =
+                "<p class='error'>Unable to connect to the agricultural assistant.</p>";
+
+        });
+
+    }
+
+
+    /* =========================================================
+       ENTER KEY FOR CHAT
+    ========================================================= */
+
+    document
+        .getElementById("chatInput")
+        .addEventListener(
+            "keydown",
+            function(event) {
+
+                if (
+                    event.key === "Enter"
+                ) {
+
+                    askQuestion();
+
+                }
+
+            }
+        );
+
+</script></body>
 </html>
