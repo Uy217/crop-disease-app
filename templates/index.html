@@ -2,1141 +2,208 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0b3d20">
-
     <title>Crop Disease Detection</title>
-
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
     <style>
-        /* =========================================
-           RESET
-        ========================================= */
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            min-height: 100%;
-        }
-
-        body {
-            min-height: 100vh;
-            font-family: Arial, Helvetica, sans-serif;
-            color: #183322;
-
-            /* FULL PAGE GREEN BACKGROUND */
-            background:
-                radial-gradient(
-                    circle at 10% 10%,
-                    rgba(129, 199, 132, 0.35),
-                    transparent 28%
-                ),
-                radial-gradient(
-                    circle at 90% 90%,
-                    rgba(67, 160, 71, 0.35),
-                    transparent 30%
-                ),
-                linear-gradient(
-                    135deg,
-                    #062914 0%,
-                    #0b4d26 48%,
-                    #031b0d 100%
-                );
-
-            padding: 25px 14px 40px;
-        }
-
-
-        /* =========================================
-           BACKGROUND DECORATION
-        ========================================= */
-
-        body::before {
-            content: "";
-            position: fixed;
-            width: 250px;
-            height: 250px;
-            border-radius: 50%;
-            background: rgba(129, 199, 132, 0.08);
-            top: -100px;
-            left: -100px;
-            pointer-events: none;
-        }
-
-        body::after {
-            content: "";
-            position: fixed;
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            background: rgba(76, 175, 80, 0.08);
-            bottom: -150px;
-            right: -120px;
-            pointer-events: none;
-        }
-
-
-        /* =========================================
-           MAIN APP
-        ========================================= */
-
-        .app {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            position: relative;
-        }
-
-
-        /* =========================================
-           HEADER
-        ========================================= */
-
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 20px;
-        }
-
-        .header-icon {
-            width: 72px;
-            height: 72px;
-            margin: 0 auto 12px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            background: rgba(255,255,255,0.14);
-            border: 1px solid rgba(255,255,255,0.25);
-            border-radius: 22px;
-
-            font-size: 38px;
-
-            box-shadow:
-                0 12px 35px rgba(0,0,0,0.25);
-
-            backdrop-filter: blur(10px);
-        }
-
-        .header h1 {
-            font-size: 27px;
-            line-height: 1.2;
-            margin-bottom: 8px;
-            color: white;
-        }
-
-        .header p {
-            color: rgba(255,255,255,0.78);
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-
-        /* =========================================
-           MAIN WHITE PANEL
-        ========================================= */
-
-        .main-card {
-            background: #ffffff;
-            border-radius: 26px;
-            padding: 20px;
-
-            box-shadow:
-                0 25px 70px rgba(0,0,0,0.30);
-
-            border: 1px solid rgba(255,255,255,0.5);
-        }
-
-
-        /* =========================================
-           UPLOAD SECTION
-        ========================================= */
-
-        .upload-section {
-            background:
-                linear-gradient(
-                    145deg,
-                    #eff9f0,
-                    #e5f4e7
-                );
-
-            border: 1px solid #cfe5d1;
-            border-radius: 18px;
-
-            padding: 18px;
-        }
-
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-
-            color: #155d25;
-            font-size: 16px;
-            font-weight: bold;
-
-            margin-bottom: 13px;
-        }
-
-        .section-icon {
-            width: 32px;
-            height: 32px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 10px;
-
-            background: #2e7d32;
-            color: white;
-        }
-
-
-        /* =========================================
-           FILE INPUT
-        ========================================= */
-
-        input[type="file"] {
-            width: 100%;
-
-            padding: 12px;
-
-            background: white;
-
-            border: 2px dashed #9bc89f;
-            border-radius: 13px;
-
-            color: #4b6350;
-
-            font-size: 14px;
-
-            cursor: pointer;
-        }
-
-        input[type="file"]:hover {
-            border-color: #43a047;
-            background: #fbfffb;
-        }
-
-
-        /* =========================================
-           PREVIEW
-        ========================================= */
-
-        .preview-box {
-            display: none;
-
-            margin-top: 15px;
-
-            padding: 10px;
-
-            background: white;
-
-            border-radius: 15px;
-
-            border: 1px solid #d6e7d8;
-
-            text-align: center;
-        }
-
-        img#preview {
-            display: block;
-
-            width: 100%;
-            max-height: 300px;
-
-            object-fit: contain;
-
-            border-radius: 11px;
-        }
-
-
-        /* =========================================
-           PREDICT BUTTON
-        ========================================= */
-
-        .predict-btn {
-            width: 100%;
-
-            margin-top: 16px;
-
-            padding: 15px 20px;
-
-            border: none;
-            border-radius: 13px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #1b5e20,
-                    #43a047
-                );
-
-            color: white;
-
-            font-size: 16px;
-            font-weight: bold;
-
-            cursor: pointer;
-
-            box-shadow:
-                0 8px 20px rgba(46,125,50,0.25);
-
-            transition: all 0.2s ease;
-        }
-
-        .predict-btn:hover {
-            transform: translateY(-2px);
-
-            box-shadow:
-                0 12px 25px rgba(46,125,50,0.32);
-        }
-
-        .predict-btn:active {
-            transform: translateY(0);
-        }
-
-
-        /* =========================================
-           RESULT
-        ========================================= */
-
-        #result {
-            margin-top: 20px;
-        }
-
-        .result-card {
-            background: #ffffff;
-
-            border-radius: 18px;
-
-            border: 1px solid #d8e8da;
-
-            overflow: hidden;
-
-            box-shadow:
-                0 7px 25px rgba(0,0,0,0.07);
-        }
-
-        .result-header {
-            padding: 15px 17px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #e7f5e9,
-                    #dff1e1
-                );
-
-            border-bottom: 1px solid #cfe3d1;
-
-            color: #155d25;
-
-            font-weight: bold;
-        }
-
-        .result-body {
-            padding: 17px;
-        }
-
-        .result-row {
-            padding: 11px 0;
-
-            border-bottom: 1px solid #edf2ed;
-
-            line-height: 1.55;
-        }
-
-        .result-row:last-child {
-            border-bottom: none;
-        }
-
-        .result-label {
-            display: block;
-
-            color: #6a786c;
-
-            font-size: 12px;
-
-            text-transform: uppercase;
-
-            letter-spacing: 0.5px;
-
-            margin-bottom: 3px;
-        }
-
-        .result-value {
-            color: #193a20;
-            font-weight: 600;
-        }
-
-
-        /* =========================================
-           RESULT HEADINGS
-        ========================================= */
-
-        #result h3 {
-            margin-top: 20px;
-            margin-bottom: 9px;
-
-            color: #216b2c;
-
-            font-size: 17px;
-
-            padding-left: 10px;
-
-            border-left: 4px solid #43a047;
-        }
-
-        #result p {
-            line-height: 1.65;
-            margin-bottom: 9px;
-        }
-
-        #result ol {
-            padding-left: 22px;
-            margin-top: 7px;
-        }
-
-        #result li {
-            margin-bottom: 9px;
-            line-height: 1.55;
-        }
-
-
-        /* =========================================
-           CHAT SECTION
-        ========================================= */
-
-        #chatSection {
-            display: none;
-
-            margin-top: 22px;
-
-            padding-top: 20px;
-
-            border-top: 1px solid #e0e7e1;
-        }
-
-        .chat-title {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-
-            color: #155d25;
-
-            font-size: 17px;
-
-            margin-bottom: 12px;
-        }
-
-        .chat-icon {
-            width: 34px;
-            height: 34px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            background: #e7f5e9;
-
-            border-radius: 10px;
-        }
-
-
-        /* =========================================
-           CHAT INPUT
-        ========================================= */
-
-        #chatInput {
-            width: 100%;
-
-            padding: 13px 14px;
-
-            border: 1px solid #ccdace;
-
-            border-radius: 12px;
-
-            font-size: 14px;
-
-            outline: none;
-
-            background: #fbfdfb;
-        }
-
-        #chatInput:focus {
-            border-color: #43a047;
-
-            box-shadow:
-                0 0 0 3px rgba(67,160,71,0.12);
-        }
-
-
-        /* =========================================
-           ASK BUTTON
-        ========================================= */
-
-        .ask-btn {
-            width: 100%;
-
-            padding: 12px;
-
-            margin-top: 10px;
-
-            border: none;
-            border-radius: 11px;
-
-            background: #e8f5e9;
-
-            color: #1b5e20;
-
-            font-size: 15px;
-            font-weight: bold;
-
-            cursor: pointer;
-
-            transition: 0.2s;
-        }
-
-        .ask-btn:hover {
-            background: #d2ecd5;
-        }
-
-
-        /* =========================================
-           AI ANSWER
-        ========================================= */
-
+        body { font-family: Arial, sans-serif; background-color: #f0f4f0; text-align: center; padding: 50px; }
+        h1 { color: #2e7d32; }
+        .container { background: white; max-width: 500px; margin: 0 auto; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .container.wide { max-width: 640px; margin-top: 30px; }
+        input[type="file"], input[type="text"] { margin: 10px 0; width: 90%; padding: 8px; }
+        select { margin: 10px 0; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+        button { background-color: #2e7d32; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #1b5e20; }
+        #result, #chatSection { margin-top: 20px; font-size: 16px; text-align: left; }
+        #result h3 { margin-bottom: 4px; margin-top: 16px; }
+        #result ol { padding-left: 20px; margin-top: 6px; }
+        #result li { margin-bottom: 6px; }
+        img#preview { max-width: 100%; margin-top: 15px; border-radius: 8px; }
+        #chatSection { display: none; border-top: 1px solid #ddd; padding-top: 15px; }
         #chatAnswer {
-            margin-top: 15px;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    #f2f9f3,
-                    #eaf5eb
-                );
-
-            border: 1px solid #d2e6d4;
-
-            border-radius: 15px;
-
-            padding: 17px;
-
-            line-height: 1.7;
-
-            color: #273b2b;
-
-            font-size: 14px;
+            margin-top: 10px; background: #f0f4f0; padding: 16px 18px; border-radius: 6px; line-height: 1.6;
         }
+        #chatAnswer h2, #chatAnswer h3 { color: #2e7d32; margin-top: 16px; margin-bottom: 6px; font-size: 17px; }
+        #chatAnswer h2:first-child, #chatAnswer h3:first-child { margin-top: 0; }
+        #chatAnswer p { margin-bottom: 12px; }
+        #chatAnswer ul, #chatAnswer ol { padding-left: 20px; margin-bottom: 12px; }
+        #chatAnswer li { margin-bottom: 6px; }
 
-        #chatAnswer h2,
-        #chatAnswer h3 {
-            color: #216b2c;
-
-            margin-top: 18px;
-            margin-bottom: 8px;
-
-            font-size: 17px;
+        .fs-note {
+            background: #fff8e1; border: 1px solid #f0d58c; border-radius: 6px;
+            padding: 10px 12px; font-size: 13.5px; text-align: left; color: #6b5300; margin-top: 14px;
         }
-
-        #chatAnswer h2:first-child,
-        #chatAnswer h3:first-child {
-            margin-top: 0;
-        }
-
-        #chatAnswer h4 {
-            color: #2e7d32;
-
-            margin-top: 15px;
-            margin-bottom: 7px;
-        }
-
-        #chatAnswer p {
-            margin-bottom: 12px;
-            line-height: 1.7;
-        }
-
-        #chatAnswer ul,
-        #chatAnswer ol {
-            padding-left: 21px;
-            margin-bottom: 13px;
-        }
-
-        #chatAnswer li {
-            margin-bottom: 7px;
-            line-height: 1.6;
-        }
-
-        #chatAnswer strong {
-            color: #155d25;
-        }
-
-
-        /* =========================================
-           LOADING
-        ========================================= */
-
-        .loading {
-            padding: 17px;
-
-            text-align: center;
-
-            color: #2e7d32;
-
-            background: #edf7ee;
-
-            border-radius: 13px;
-
-            font-weight: bold;
-        }
-
-
-        /* =========================================
-           ERROR
-        ========================================= */
-
-        .error {
-            padding: 13px;
-
-            border-radius: 11px;
-
-            background: #fff1f1;
-
-            border: 1px solid #efcccc;
-
-            color: #b42318;
-
-            line-height: 1.5;
-        }
-
-
-        /* =========================================
-           FOOTER
-        ========================================= */
-
-        .footer {
-            text-align: center;
-
-            margin-top: 18px;
-
-            color: #91a095;
-
-            font-size: 11px;
-
-            line-height: 1.5;
-        }
-
-
-        /* =========================================
-           MOBILE
-        ========================================= */
-
-        @media (max-width: 600px) {
-
-            body {
-                padding: 15px 9px 30px;
-            }
-
-            .header {
-                margin-bottom: 15px;
-            }
-
-            .header-icon {
-                width: 62px;
-                height: 62px;
-                font-size: 32px;
-            }
-
-            .header h1 {
-                font-size: 23px;
-            }
-
-            .header p {
-                font-size: 13px;
-            }
-
-            .main-card {
-                padding: 15px;
-
-                border-radius: 22px;
-            }
-
-            .upload-section {
-                padding: 15px;
-            }
-        }
-
+        #fieldResult { text-align: left; margin-top: 18px; }
+        #fieldImg { max-width: 100%; border-radius: 8px; display: block; margin-top: 10px; }
+        .fs-stats { margin-top: 14px; background: #f0f4f0; border-radius: 6px; padding: 14px 16px; line-height: 1.7; }
+        .fs-stats b { color: #2e7d32; }
+        .fs-status { font-weight: bold; margin-top: 8px; }
     </style>
 </head>
-
-
 <body>
-
-<div class="app">
-
-    <!-- =========================================
-         HEADER
-    ========================================== -->
-
-    <div class="header">
-
-        <div class="header-icon">
-            🌱
-        </div>
-
-        <h1>
-            Crop Disease Detection
-        </h1>
-
-        <p>
-            Upload a leaf image to detect crop diseases
-            and receive management recommendations.
-        </p>
-
-    </div>
-
-
-    <!-- =========================================
-         MAIN CARD
-    ========================================== -->
-
-    <div class="main-card">
-
-
-        <!-- UPLOAD -->
-
-        <div class="upload-section">
-
-            <div class="section-title">
-
-                <div class="section-icon">
-                    📷
-                </div>
-
-                Upload Leaf Image
-
-            </div>
-
-
-            <input
-                type="file"
-                id="imageInput"
-                accept="image/*"
-            >
-
-
-            <div
-                class="preview-box"
-                id="previewBox"
-            >
-
-                <img
-                    id="preview"
-                    alt="Selected leaf image"
-                >
-
-            </div>
-
-        </div>
-
-
-        <!-- PREDICT -->
-
-        <button
-            class="predict-btn"
-            onclick="predict()"
-        >
-            🔍 Predict Disease
-        </button>
-
-
-        <!-- RESULT -->
-
+    <div class="container">
+        <h1>🌱 Crop Disease Detection</h1>
+        <p>Upload a leaf image to detect the disease</p>
+        <input type="file" id="imageInput" accept="image/*">
+        <br>
+        <img id="preview" style="display:none;">
+        <br>
+        <button onclick="predict()">Predict</button>
         <div id="result"></div>
 
-
-        <!-- CHAT -->
-
         <div id="chatSection">
-
-            <div class="chat-title">
-
-                <div class="chat-icon">
-                    💬
-                </div>
-
-                Have a question about this diagnosis?
-
-            </div>
-
-
-            <input
-                type="text"
-                id="chatInput"
-                placeholder="e.g. Is this safe for my other plants?"
-            >
-
-
-            <button
-                class="ask-btn"
-                onclick="askQuestion()"
-            >
-                Ask Question
-            </button>
-
-
+            <h3>Have a question about this diagnosis?</h3>
+            <input type="text" id="chatInput" placeholder="e.g. Is this safe for my other plants?">
+            <br>
+            <button onclick="askQuestion()">Ask</button>
             <div id="chatAnswer"></div>
-
         </div>
-
-
-        <div class="footer">
-            Crop Disease Detection and Management System
-        </div>
-
     </div>
 
-</div>
+    <div class="container wide">
+        <h1>🌾 Field Scan</h1>
+        <p>Precision Agriculture Field Screening Module</p>
+        <p style="font-size: 14px; color: #555;">Upload a wider photo showing several plants/leaves. The image is divided into a grid, and each region is screened using the same disease classifier above, to flag which parts of the field may need closer inspection.</p>
+        <input type="file" id="fieldInput" accept="image/*">
+        <br>
+        <label for="gridSize">Grid size: </label>
+        <select id="gridSize">
+            <option value="3">3 x 3 (9 regions)</option>
+            <option value="4" selected>4 x 4 (16 regions)</option>
+            <option value="5">5 x 5 (25 regions)</option>
+            <option value="6">6 x 6 (36 regions)</option>
+        </select>
+        <br>
+        <button onclick="scanField()">Scan Field</button>
 
+        <div class="fs-note">
+            <b>Note:</b> The underlying classifier was trained and evaluated on individual leaf images (PlantVillage dataset), not on drone or aerial imagery. This module demonstrates a field-level screening architecture by applying that same classifier to regions of a wider image. Full drone-based deployment would require a model trained and validated on aerial/field-level imagery.
+        </div>
 
-<script>
+        <div id="fieldResult"></div>
+    </div>
 
-    const imageInput =
-        document.getElementById('imageInput');
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const preview = document.getElementById('preview');
+        const resultDiv = document.getElementById('result');
+        const chatSection = document.getElementById('chatSection');
+        const chatInput = document.getElementById('chatInput');
+        const chatAnswer = document.getElementById('chatAnswer');
+        let currentDisease = '';
 
-    const preview =
-        document.getElementById('preview');
+        function resetResults() {
+            resultDiv.innerHTML = '';
+            chatSection.style.display = 'none';
+            chatInput.value = '';
+            chatAnswer.innerHTML = '';
+            currentDisease = '';
+        }
 
-    const previewBox =
-        document.getElementById('previewBox');
-
-    const resultDiv =
-        document.getElementById('result');
-
-    const chatSection =
-        document.getElementById('chatSection');
-
-    const chatInput =
-        document.getElementById('chatInput');
-
-    const chatAnswer =
-        document.getElementById('chatAnswer');
-
-    let currentDisease = '';
-
-
-    /* =========================================
-       RESET
-    ========================================== */
-
-    function resetResults() {
-
-        resultDiv.innerHTML = '';
-
-        chatSection.style.display = 'none';
-
-        chatInput.value = '';
-
-        chatAnswer.innerHTML = '';
-
-        currentDisease = '';
-
-    }
-
-
-    /* =========================================
-       IMAGE SELECTION
-    ========================================== */
-
-    imageInput.addEventListener(
-        'change',
-        function() {
-
+        imageInput.addEventListener('change', function() {
             const file = this.files[0];
-
-            resetResults();
-
             if (file) {
-
-                preview.src =
-                    URL.createObjectURL(file);
-
-                previewBox.style.display =
-                    'block';
-
-            } else {
-
-                previewBox.style.display =
-                    'none';
-
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
             }
+            resetResults();
+        });
 
-        }
-    );
-
-
-    /* =========================================
-       PREDICT
-    ========================================== */
-
-    function predict() {
-
-        const file =
-            imageInput.files[0];
-
-
-        if (!file) {
-
-            resultDiv.innerHTML = `
-                <div class="error">
-                    Please select an image first.
-                </div>
-            `;
-
-            return;
-        }
-
-
-        resetResults();
-
-
-        resultDiv.innerHTML = `
-            <div class="loading">
-                🔄 Analyzing leaf image...
-            </div>
-        `;
-
-
-        const formData =
-            new FormData();
-
-        formData.append(
-            'file',
-            file
-        );
-
-
-        fetch(
-            '/predict',
-            {
-                method: 'POST',
-                body: formData
+        function predict() {
+            const file = imageInput.files[0];
+            if (!file) {
+                resultDiv.innerHTML = "<p style='color:red;'>Please select an image first.</p>";
+                return;
             }
-        )
-
-        .then(
-            response =>
-                response.json()
-        )
-
-        .then(
-            data => {
-
+            resetResults();
+            resultDiv.innerHTML = "<p>Analyzing...</p>";
+            const formData = new FormData();
+            formData.append('file', file);
+            fetch('/predict', { method: 'POST', body: formData })
+            .then(response => response.json())
+            .then(data => {
                 if (data.error) {
-
+                    resultDiv.innerHTML = `<p style='color:red;'>${data.error}</p>`;
+                } else {
+                    currentDisease = data.disease;
+                    const stepsHtml = data.recommendation_steps.map(step => `<li>${step}</li>`).join('');
                     resultDiv.innerHTML = `
-                        <div class="error">
-                            ${data.error}
-                        </div>
+                        <p><strong>Disease Detected:</strong> ${data.disease}</p>
+                        <p><strong>Confidence:</strong> ${data.confidence}</p>
+                        <h3>Symptoms</h3>
+                        <p>${data.symptoms}</p>
+                        <h3>Recommended Pesticide &amp; Management Steps</h3>
+                        <ol>${stepsHtml}</ol>
                     `;
-
-                    return;
+                    chatSection.style.display = 'block';
                 }
-
-
-                currentDisease =
-                    data.disease;
-
-
-                const stepsHtml =
-                    data.recommendation_steps
-                    .map(
-                        step =>
-                            `<li>${step}</li>`
-                    )
-                    .join('');
-
-
-                resultDiv.innerHTML = `
-
-                    <div class="result-card">
-
-                        <div class="result-header">
-                            🌿 Diagnosis Result
-                        </div>
-
-
-                        <div class="result-body">
-
-                            <div class="result-row">
-
-                                <span class="result-label">
-                                    Disease Detected
-                                </span>
-
-                                <span class="result-value">
-                                    ${data.disease}
-                                </span>
-
-                            </div>
-
-
-                            <div class="result-row">
-
-                                <span class="result-label">
-                                    Confidence
-                                </span>
-
-                                <span class="result-value">
-                                    ${data.confidence}
-                                </span>
-
-                            </div>
-
-
-                            <h3>
-                                Symptoms
-                            </h3>
-
-                            <p>
-                                ${data.symptoms}
-                            </p>
-
-
-                            <h3>
-                                Recommended Pesticide
-                                &amp;
-                                Management Steps
-                            </h3>
-
-                            <ol>
-                                ${stepsHtml}
-                            </ol>
-
-                        </div>
-
-                    </div>
-
-                `;
-
-
-                chatSection.style.display =
-                    'block';
-
-            }
-        )
-
-        .catch(
-            err => {
-
-                resultDiv.innerHTML = `
-                    <div class="error">
-                        Error connecting to server.
-                    </div>
-                `;
-
-            }
-        );
-
-    }
-
-
-    /* =========================================
-       CHAT
-    ========================================== */
-
-    function askQuestion() {
-
-        const question =
-            chatInput.value.trim();
-
-
-        if (!question) {
-            return;
+            })
+            .catch(err => {
+                resultDiv.innerHTML = "<p style='color:red;'>Error connecting to server.</p>";
+            });
         }
 
-
-        chatAnswer.innerHTML = `
-            <div class="loading">
-                🤔 Thinking...
-            </div>
-        `;
-
-
-        fetch(
-            '/chat',
-            {
+        function askQuestion() {
+            const question = chatInput.value;
+            if (!question) return;
+            chatAnswer.innerHTML = "<p>Thinking...</p>";
+            fetch('/chat', {
                 method: 'POST',
-
-                headers: {
-                    'Content-Type':
-                        'application/json'
-                },
-
-                body: JSON.stringify({
-
-                    disease:
-                        currentDisease,
-
-                    question:
-                        question
-
-                })
-
-            }
-        )
-
-        .then(
-            response =>
-                response.json()
-        )
-
-        .then(
-            data => {
-
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ disease: currentDisease, question: question })
+            })
+            .then(response => response.json())
+            .then(data => {
                 if (data.error) {
+                    chatAnswer.innerHTML = `<p style='color:red;'>${data.error}</p>`;
+                } else {
+                    chatAnswer.innerHTML = marked.parse(data.answer);
+                }
+            })
+            .catch(err => {
+                chatAnswer.innerHTML = "<p style='color:red;'>Error connecting to server.</p>";
+            });
+        }
 
-                    chatAnswer.innerHTML = `
-                        <div class="error">
-                            ${data.error}
+        // ---- Field Scan ----
+        const fieldInput = document.getElementById('fieldInput');
+        const gridSize = document.getElementById('gridSize');
+        const fieldResult = document.getElementById('fieldResult');
+
+        function scanField() {
+            const file = fieldInput.files[0];
+            if (!file) {
+                fieldResult.innerHTML = "<p style='color:red;'>Please select a field image first.</p>";
+                return;
+            }
+            fieldResult.innerHTML = "<p>Scanning field... this can take a little longer than a single prediction.</p>";
+            const n = gridSize.value;
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('rows', n);
+            formData.append('cols', n);
+            fetch('/field_scan', { method: 'POST', body: formData })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    fieldResult.innerHTML = `<p style='color:red;'>${data.error}</p>`;
+                } else {
+                    const mostCommon = data.most_common_disease ? data.most_common_disease : 'None';
+                    fieldResult.innerHTML = `
+                        <img id="fieldImg" src="data:image/jpeg;base64,${data.image}">
+                        <div class="fs-stats">
+                            <p>Total regions scanned: <b>${data.total_tiles}</b> (${data.rows} x ${data.cols} grid)</p>
+                            <p>Healthy: <b>${data.healthy_count}</b> (${data.healthy_pct}%)</p>
+                            <p>Flagged as possibly diseased: <b>${data.diseased_count}</b> (${data.diseased_pct}%)</p>
+                            <p>Most common condition flagged: <b>${mostCommon}</b></p>
+                            <p class="fs-status">${data.field_status}</p>
                         </div>
                     `;
-
-                    return;
                 }
-
-
-                chatAnswer.innerHTML =
-                    marked.parse(
-                        data.answer
-                    );
-
-            }
-        )
-
-        .catch(
-            err => {
-
-                chatAnswer.innerHTML = `
-                    <div class="error">
-                        Error connecting to server.
-                    </div>
-                `;
-
-            }
-        );
-
-    }
-
-</script>
-
+            })
+            .catch(err => {
+                fieldResult.innerHTML = "<p style='color:red;'>Error connecting to server.</p>";
+            });
+        }
+    </script>
 </body>
-</html>
+            </html>
