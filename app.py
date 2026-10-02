@@ -54,7 +54,27 @@ class_labels = [
 
 
 # ============================================================
-# SHORT LABELS FOR FIELD SCREENING
+# CROP NAMES (used to rebuild the crop-aware display name)
+# ============================================================
+
+crop_names = {
+    'Pepper,_bell': 'Bell Pepper',
+    'Potato': 'Potato',
+    'Tomato': 'Tomato'
+}
+
+# Short crop tag used only on the tiny field-scan tile overlays,
+# where a full crop name would not fit next to the condition text
+crop_tags = {
+    'Pepper,_bell': 'Pepper',
+    'Potato': 'Potato',
+    'Tomato': 'Tomato'
+}
+
+
+# ============================================================
+# SHORT LABELS (condition only — kept only for the tile overlay,
+# NOT used anywhere a farmer needs to know which crop this is)
 # ============================================================
 
 short_labels = {
@@ -76,6 +96,26 @@ short_labels = {
     'Tomato___Tomato_mosaic_virus': 'Mosaic Virus',
     'Tomato___healthy': 'Healthy'
 }
+
+
+def format_display_name(predicted_class):
+    """
+    Builds the crop-aware name shown to the farmer everywhere EXCEPT the
+    tiny field-scan tile overlay, e.g. 'Tomato — Early Blight' or
+    'Bell Pepper — Healthy'.
+    """
+    crop_key, _, _condition_key = predicted_class.partition('___')
+    crop = crop_names.get(crop_key, crop_key)
+    condition = short_labels.get(predicted_class, _condition_key.replace('_', ' '))
+    return f"{crop} \u2014 {condition}"
+
+
+def format_tile_tag(predicted_class, confidence):
+    """Compact crop + condition + confidence string sized for a small grid tile."""
+    crop_key, _, _ = predicted_class.partition('___')
+    crop_tag = crop_tags.get(crop_key, crop_key)
+    condition = short_labels.get(predicted_class, predicted_class)
+    return f"{crop_tag}: {condition} {confidence:.0f}%"
 
 
 # ============================================================
@@ -351,6 +391,11 @@ def predict():
 
             'label': short_name,
 
+            # crop-aware name, e.g. "Tomato — Early Blight".
+            # The frontend's main diagnosis display uses THIS field,
+            # not 'label', so the crop is never lost.
+            'display_name': format_display_name(predicted_class),
+
             'confidence': f"{confidence:.2f}%",
 
             'symptoms': symptom_text,
@@ -398,7 +443,6 @@ def field_scan():
         rows = int(request.form.get('rows', 4))
         cols = int(request.form.get('cols', 4))
 
-        # Prevent excessive processing
         rows = max(2, min(rows, 6))
         cols = max(2, min(cols, 6))
 
@@ -424,10 +468,6 @@ def field_scan():
                 'Try a larger image or fewer regions.'
             }), 400
 
-        # ----------------------------------------------------
-        # CREATE TRANSPARENT OVERLAY
-        # ----------------------------------------------------
-
         overlay = Image.new(
             'RGBA',
             img.size,
@@ -435,10 +475,6 @@ def field_scan():
         )
 
         draw = ImageDraw.Draw(overlay)
-
-        # ----------------------------------------------------
-        # FONT
-        # ----------------------------------------------------
 
         try:
 
@@ -461,10 +497,6 @@ def field_scan():
 
             font = ImageFont.load_default()
 
-        # ----------------------------------------------------
-        # COUNTERS
-        # ----------------------------------------------------
-
         tiles_info = []
 
         healthy_count = 0
@@ -474,10 +506,6 @@ def field_scan():
         disease_tally = {}
 
         confidence_values = []
-
-        # ----------------------------------------------------
-        # PROCESS EVERY REGION
-        # ----------------------------------------------------
 
         for r in range(rows):
 
@@ -503,10 +531,6 @@ def field_scan():
                     (left, top, right, bottom)
                 )
 
-                # --------------------------------------------
-                # RUN EXISTING EFFICIENTNET MODEL
-                # --------------------------------------------
-
                 predicted_class, confidence = classify_image(
                     tile_img
                 )
@@ -522,9 +546,7 @@ def field_scan():
                     predicted_class
                 )
 
-                # --------------------------------------------
-                # COUNT RESULTS
-                # --------------------------------------------
+                display_name = format_display_name(predicted_class)
 
                 if is_healthy:
 
@@ -548,8 +570,8 @@ def field_scan():
 
                     diseased_count += 1
 
-                    disease_tally[label] = (
-                        disease_tally.get(label, 0) + 1
+                    disease_tally[display_name] = (
+                        disease_tally.get(display_name, 0) + 1
                     )
 
                     fill = (
@@ -566,10 +588,6 @@ def field_scan():
                         255
                     )
 
-                # --------------------------------------------
-                # DRAW REGION
-                # --------------------------------------------
-
                 draw.rectangle(
                     [
                         left,
@@ -582,14 +600,7 @@ def field_scan():
                     width=3
                 )
 
-                # --------------------------------------------
-                # DRAW LABEL
-                # --------------------------------------------
-
-                tag = (
-                    f"{label} "
-                    f"{confidence:.0f}%"
-                )
+                tag = format_tile_tag(predicted_class, confidence)
 
                 text_bbox = draw.textbbox(
                     (0, 0),
@@ -628,10 +639,6 @@ def field_scan():
                     font=font
                 )
 
-                # --------------------------------------------
-                # SAVE TILE INFORMATION
-                # --------------------------------------------
-
                 tiles_info.append({
 
                     'row': r,
@@ -641,6 +648,8 @@ def field_scan():
                     'disease': predicted_class,
 
                     'label': label,
+
+                    'display_name': display_name,
 
                     'confidence': round(
                         confidence,
@@ -662,18 +671,10 @@ def field_scan():
 
                 })
 
-        # ----------------------------------------------------
-        # CREATE ANNOTATED IMAGE
-        # ----------------------------------------------------
-
         annotated = Image.alpha_composite(
             img.convert('RGBA'),
             overlay
         ).convert('RGB')
-
-        # ----------------------------------------------------
-        # CONVERT IMAGE TO BASE64
-        # ----------------------------------------------------
 
         buf = io.BytesIO()
 
@@ -687,170 +688,52 @@ def field_scan():
             buf.getvalue()
         ).decode('utf-8')
 
-        # ----------------------------------------------------
-        # FIELD STATISTICS
-        # ----------------------------------------------------
-
         total = rows * cols
 
-        healthy_pct = round(
-            (healthy_count / total) * 100,
-            1
-        )
-
-        diseased_pct = round(
-            (diseased_count / total) * 100,
-            1
-        )
+        healthy_pct = round((healthy_count / total) * 100, 1)
+        diseased_pct = round((diseased_count / total) * 100, 1)
 
         average_confidence = round(
-            sum(confidence_values)
-            / len(confidence_values),
-            1
+            sum(confidence_values) / len(confidence_values), 1
+        ) if confidence_values else 0
+
+        most_common_display_name = (
+            max(disease_tally, key=disease_tally.get)
+            if disease_tally else None
         )
 
-        most_common = (
-            max(
-                disease_tally,
-                key=disease_tally.get
-            )
-            if disease_tally
-            else None
-        )
-
-        # ----------------------------------------------------
-        # FIELD STATUS
-        # ----------------------------------------------------
-
-        if diseased_count == 0:
-
-            field_status = (
-                "No disease signals were detected "
-                "in the scanned regions."
-            )
-
+        if diseased_pct == 0:
+            field_status = "Field looks healthy — no disease signals detected in the scanned regions."
         elif diseased_pct < 20:
-
-            field_status = (
-                "A small number of scanned regions "
-                "show possible disease signals and "
-                "may require closer inspection."
-            )
-
+            field_status = "Mostly healthy — a few regions show possible disease and are worth a closer look."
         elif diseased_pct < 50:
-
-            field_status = (
-                "Several scanned regions show possible "
-                "disease signals and should be inspected."
-            )
-
+            field_status = "Moderate concern — a notable portion of the field shows possible disease signals."
         else:
-
-            field_status = (
-                "A large proportion of the scanned regions "
-                "show possible disease signals and "
-                "should receive closer inspection."
-            )
-
-        # ----------------------------------------------------
-        # UNIQUE DETECTED DISEASES
-        # ----------------------------------------------------
-
-        detected_conditions = []
-
-        for disease_name, count in disease_tally.items():
-
-            detected_conditions.append({
-
-                'disease': disease_name,
-
-                'regions': count,
-
-                'percentage': round(
-                    (count / total) * 100,
-                    1
-                )
-
-            })
-
-        # ----------------------------------------------------
-        # FIELD-LEVEL RECOMMENDATIONS
-        # ----------------------------------------------------
-
-        field_recommendations = []
-
-        for tile in tiles_info:
-
-            if not tile['healthy']:
-
-                for recommendation in tile[
-                    'recommendations'
-                ]:
-
-                    if recommendation not in field_recommendations:
-
-                        field_recommendations.append(
-                            recommendation
-                        )
-
-        # ----------------------------------------------------
-        # FIELD SYMPTOMS
-        # ----------------------------------------------------
-
-        field_symptoms = []
-
-        for tile in tiles_info:
-
-            if not tile['healthy']:
-
-                symptom = tile['symptoms']
-
-                if symptom not in field_symptoms:
-
-                    field_symptoms.append(symptom)
-
-        # ----------------------------------------------------
-        # RESPONSE
-        # ----------------------------------------------------
+            field_status = "Requires attention — a large portion of the scanned field shows possible disease signals."
 
         return jsonify({
 
             'image': img_b64,
 
             'rows': rows,
-
             'cols': cols,
-
             'total_tiles': total,
 
             'healthy_count': healthy_count,
-
             'diseased_count': diseased_count,
 
             'healthy_pct': healthy_pct,
-
             'diseased_pct': diseased_pct,
 
-            'average_confidence':
-                average_confidence,
+            'average_confidence': average_confidence,
 
-            'most_common_disease':
-                most_common,
+            'most_common_disease': most_common_display_name,
 
-            'detected_conditions':
-                detected_conditions,
+            'conditions_tally': disease_tally,
 
-            'field_symptoms':
-                field_symptoms,
+            'field_status': field_status,
 
-            'field_recommendations':
-                field_recommendations,
-
-            'field_status':
-                field_status,
-
-            'tiles':
-                tiles_info
+            'tiles': tiles_info
 
         })
 
@@ -859,178 +742,60 @@ def field_scan():
         print(f"Field scan error: {e}")
 
         return jsonify({
-
-            'error':
-            'Unable to process the field image.'
-
+            'error': 'Unable to process the field image.'
         }), 500
 
 
 # ============================================================
-# FARMER CHAT
+# CHAT (AGRICULTURAL ASSISTANT)
 # ============================================================
 
 @app.route('/chat', methods=['POST'])
 def chat():
 
-    data = request.get_json() or {}
+    data = request.get_json()
 
-    disease = data.get(
-        'disease',
-        'Unknown'
-    )
-
-    question = data.get(
-        'question',
-        ''
-    )
-
-    # Optional field information
-    field_context = data.get(
-        'field_context',
-        ''
-    )
+    disease = data.get('disease', 'Unknown')
+    question = data.get('question', '')
 
     if not question:
-
         return jsonify({
-            'error':
-            'No question provided'
+            'error': 'No question provided'
         }), 400
 
-    # --------------------------------------------------------
-    # NORMAL SINGLE-DIAGNOSIS CHAT
-    # --------------------------------------------------------
+    display_name = format_display_name(disease) if disease != 'Unknown' else disease
 
-    if not field_context:
+    prompt = (
+        f"You are an agricultural assistant helping a farmer whose crop leaf was diagnosed with: {display_name}. "
+        f"Answer their question clearly and practically. "
+        f"Format your answer using Markdown: use short '##' subheadings to break the answer into "
+        f"sections where it makes sense (e.g. What it is, Immediate steps, Prevention), use blank lines "
+        f"between paragraphs, and use numbered or bulleted lists for any steps. Keep each paragraph short. "
+        f"Farmer's question: {question}"
+    )
 
-        prompt = (
-
-            "You are an agricultural assistant helping "
-            "a farmer.\n\n"
-
-            f"The crop leaf was classified by the "
-            f"machine learning system as: {disease}.\n\n"
-
-            "Do not claim that you personally diagnosed "
-            "the image. Treat the machine learning result "
-            "as a prediction that may require confirmation "
-            "by an agricultural professional.\n\n"
-
-            "Answer the farmer's question clearly and "
-            "practically.\n\n"
-
-            "Format your answer using Markdown. "
-            "Use short headings where useful, blank lines "
-            "between paragraphs, and numbered or bulleted "
-            "lists for steps.\n\n"
-
-            f"Farmer's question: {question}"
-        )
-
-    # --------------------------------------------------------
-    # FIELD-SCREENING CHAT
-    # --------------------------------------------------------
-
-    else:
-
-        prompt = (
-
-            "You are an agricultural assistant helping "
-            "a farmer interpret results from a crop field "
-            "screening system.\n\n"
-
-            "The field screening system divides a wider "
-            "image into regions and applies an existing "
-            "leaf-level machine learning classifier to "
-            "each region.\n\n"
-
-            "The results are screening predictions and "
-            "should not be presented as a confirmed "
-            "professional field diagnosis.\n\n"
-
-            f"Field screening information:\n"
-            f"{field_context}\n\n"
-
-            "Answer the farmer's question based on the "
-            "provided screening results.\n\n"
-
-            "Do not invent diseases that are not present "
-            "in the provided results.\n\n"
-
-            "Format your response using Markdown with "
-            "short headings, paragraphs and lists where "
-            "appropriate.\n\n"
-
-            f"Farmer's question: {question}"
-        )
-
-    # --------------------------------------------------------
-    # GEMINI MODEL FALLBACK
-    # --------------------------------------------------------
-
-    models_to_try = [
-        "gemini-3.6-flash",
-        "gemini-2.5-flash"
-    ]
+    models_to_try = ["gemini-3.6-flash", "gemini-2.5-flash"]
 
     for model_name in models_to_try:
-
         for attempt in range(2):
-
             try:
-
                 response = client.models.generate_content(
-
                     model=model_name,
-
                     contents=prompt
                 )
-
-                return jsonify({
-
-                    'answer':
-                    response.text
-
-                })
-
+                return jsonify({'answer': response.text})
             except Exception as e:
-
-                print(
-                    f"Gemini chat error "
-                    f"[{model_name}] "
-                    f"(attempt {attempt + 1}): {e}"
-                )
-
-                if (
-                    "503" in str(e)
-                    or
-                    "UNAVAILABLE" in str(e)
-                ):
-
+                print(f"Gemini chat error [{model_name}] (attempt {attempt + 1}): {e}")
+                if "503" in str(e) or "UNAVAILABLE" in str(e):
                     time.sleep(2)
-
                     continue
-
                 else:
-
                     break
 
     return jsonify({
-
-        'error':
-        'Could not get a response right now. '
-        'Please try again.'
-
+        'error': 'Could not get a response right now. Please try again.'
     }), 500
 
 
-# ============================================================
-# RUN APPLICATION
-# ============================================================
-
 if __name__ == '__main__':
-
-    app.run(
-        debug=True
-    )
+    app.run(debug=True)
