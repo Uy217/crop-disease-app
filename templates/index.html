@@ -1,1805 +1,1038 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
-
-<title>
-Crop Disease Detection & Management System
-</title>
-
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-<style>
-
-/* =========================================================
-   GLOBAL
-========================================================= */
-
-* {
-    box-sizing: border-box;
-}
-
-body {
-
-    margin: 0;
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
-    background:
-        linear-gradient(
-            135deg,
-            #063b20,
-            #0b6b38,
-            #0d8b4b
-        );
-
-    color: #173b27;
-
-    min-height: 100vh;
-}
-
-
-/* =========================================================
-   HEADER
-========================================================= */
-
-.header {
-
-    padding: 45px 20px 30px;
-
-    text-align: center;
-
-    color: white;
-}
-
-.logo {
-
-    width: 75px;
-    height: 75px;
-
-    margin: auto;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 50%;
-
-    background: rgba(255,255,255,0.15);
-
-    font-size: 38px;
-
-    border:
-        2px solid
-        rgba(255,255,255,0.3);
-}
-
-.header h1 {
-
-    margin:
-        18px 0 8px;
-
-    font-size:
-        clamp(25px, 5vw, 38px);
-}
-
-.header p {
-
-    margin: 0;
-
-    opacity: 0.9;
-
-    font-size: 15px;
-}
-
-
-/* =========================================================
-   MAIN CONTAINER
-========================================================= */
-
-.dashboard {
-
-    width: min(
-        1100px,
-        94%
-    );
-
-    margin:
-        0 auto 50px;
-
-}
-
-
-/* =========================================================
-   CARD
-========================================================= */
-
-.card {
-
-    background:
-        rgba(255,255,255,0.97);
-
-    border-radius: 22px;
-
-    padding: 30px;
-
-    margin-bottom: 22px;
-
-    box-shadow:
-        0 15px 40px
-        rgba(0,0,0,0.16);
-}
-
-
-/* =========================================================
-   UPLOAD AREA
-========================================================= */
-
-.upload-card {
-
-    text-align: center;
-
-    border:
-        2px solid
-        #b8e6c8;
-}
-
-.upload-card h2 {
-
-    margin-top: 0;
-
-    color: #075d2e;
-}
-
-.upload-description {
-
-    color: #567161;
-
-    max-width: 650px;
-
-    margin:
-        0 auto 25px;
-
-    line-height: 1.6;
-}
-
-
-/* =========================================================
-   DROP AREA
-========================================================= */
-
-.drop-area {
-
-    border:
-        2px dashed
-        #31a85b;
-
-    border-radius: 18px;
-
-    padding: 35px 20px;
-
-    background:
-        #effaf3;
-
-    cursor: pointer;
-
-    transition:
-        0.25s;
-}
-
-.drop-area:hover {
-
-    background:
-        #e1f5e8;
-
-    border-color:
-        #087c3b;
-}
-
-.upload-icon {
-
-    font-size: 48px;
-
-    margin-bottom: 10px;
-}
-
-.drop-area strong {
-
-    display: block;
-
-    color: #086a35;
-
-    font-size: 18px;
-
-    margin-bottom: 7px;
-}
-
-.drop-area span {
-
-    color: #688170;
-
-    font-size: 14px;
-}
-
-#imageInput {
-
-    display: none;
-}
-
-
-/* =========================================================
-   PREVIEW
-========================================================= */
-
-.preview-wrapper {
-
-    display: none;
-
-    margin-top: 20px;
-}
-
-#preview {
-
-    max-width: 100%;
-
-    max-height: 420px;
-
-    border-radius: 14px;
-
-    display: block;
-
-    margin: auto;
-
-    box-shadow:
-        0 8px 25px
-        rgba(0,0,0,0.12);
-}
-
-
-/* =========================================================
-   BUTTON
-========================================================= */
-
-.primary-button {
-
-    margin-top: 20px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #087c3b,
-            #13a052
-        );
-
-    color: white;
-
-    border: none;
-
-    padding:
-        14px 30px;
-
-    border-radius: 12px;
-
-    cursor: pointer;
-
-    font-size: 16px;
-
-    font-weight: bold;
-
-    box-shadow:
-        0 6px 15px
-        rgba(8,124,59,0.25);
-
-    transition:
-        0.2s;
-}
-
-.primary-button:hover {
-
-    transform:
-        translateY(-2px);
-
-    box-shadow:
-        0 9px 20px
-        rgba(8,124,59,0.3);
-}
-
-.primary-button:disabled {
-
-    opacity: 0.6;
-
-    cursor:
-        not-allowed;
-
-    transform: none;
-}
-
-
-/* =========================================================
-   LOADING
-========================================================= */
-
-.loading {
-
-    display: none;
-
-    text-align: center;
-
-    padding: 30px;
-}
-
-.spinner {
-
-    width: 42px;
-    height: 42px;
-
-    margin:
-        0 auto 15px;
-
-    border:
-        4px solid
-        #d5efdd;
-
-    border-top-color:
-        #087c3b;
-
-    border-radius: 50%;
-
-    animation:
-        spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-
-    to {
-        transform:
-            rotate(360deg);
-    }
-}
-
-
-/* =========================================================
-   RESULTS
-========================================================= */
-
-#results {
-
-    display: none;
-}
-
-.result-header {
-
-    background:
-        linear-gradient(
-            135deg,
-            #075d2e,
-            #0d984b
-        );
-
-    color: white;
-
-    padding: 25px;
-
-    border-radius: 17px;
-
-    margin-bottom: 20px;
-}
-
-.result-header small {
-
-    opacity: 0.8;
-
-    display: block;
-
-    margin-bottom: 7px;
-}
-
-.result-header h2 {
-
-    margin: 0;
-
-    font-size:
-        clamp(24px, 5vw, 34px);
-}
-
-
-/* =========================================================
-   RESULT GRID
-========================================================= */
-
-.result-grid {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(
-                240px,
-                1fr
-            )
-        );
-
-    gap: 16px;
-}
-
-.info-box {
-
-    background:
-        #f0faf3;
-
-    border:
-        1px solid
-        #ccebd6;
-
-    border-radius: 15px;
-
-    padding: 20px;
-}
-
-.info-box h3 {
-
-    margin-top: 0;
-
-    color: #08713a;
-
-    font-size: 17px;
-}
-
-.info-box p {
-
-    line-height: 1.6;
-
-    color: #4b6555;
-}
-
-
-/* =========================================================
-   CONFIDENCE
-========================================================= */
-
-.confidence-number {
-
-    font-size: 30px;
-
-    font-weight: bold;
-
-    color: #087c3b;
-}
-
-
-/* =========================================================
-   LIST
-========================================================= */
-
-.recommendation-list {
-
-    padding-left: 20px;
-
-    line-height: 1.7;
-}
-
-.recommendation-list li {
-
-    margin-bottom: 9px;
-}
-
-
-/* =========================================================
-   FIELD SCREENING
-========================================================= */
-
-.field-result {
-
-    display: none;
-
-    margin-top: 22px;
-}
-
-.field-image {
-
-    width: 100%;
-
-    border-radius: 15px;
-
-    display: block;
-
-    border:
-        3px solid
-        #c9ead3;
-}
-
-.field-badge {
-
-    display: inline-block;
-
-    background:
-        #dff5e6;
-
-    color:
-        #08713a;
-
-    padding:
-        7px 12px;
-
-    border-radius: 30px;
-
-    font-size: 13px;
-
-    font-weight: bold;
-
-    margin-bottom: 12px;
-}
-
-
-/* =========================================================
-   FIELD STATS
-========================================================= */
-
-.stats-grid {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(
-                160px,
-                1fr
-            )
-        );
-
-    gap: 12px;
-
-    margin-top: 18px;
-}
-
-.stat {
-
-    background:
-        #effaf3;
-
-    border-radius: 14px;
-
-    padding: 18px;
-
-    border:
-        1px solid
-        #d1edd9;
-}
-
-.stat strong {
-
-    display: block;
-
-    font-size: 25px;
-
-    color: #087c3b;
-
-    margin-bottom: 5px;
-}
-
-.stat span {
-
-    color: #61766a;
-
-    font-size: 13px;
-}
-
-
-/* =========================================================
-   STATUS
-========================================================= */
-
-.status-box {
-
-    margin-top: 18px;
-
-    padding: 18px;
-
-    border-radius: 14px;
-
-    background:
-        #e8f7ed;
-
-    color:
-        #175c32;
-
-    line-height: 1.6;
-}
-
-
-/* =========================================================
-   CHAT
-========================================================= */
-
-.chat-card {
-
-    display: none;
-}
-
-.chat-card h2 {
-
-    color: #075d2e;
-
-    margin-top: 0;
-}
-
-.chat-description {
-
-    color: #627569;
-
-    line-height: 1.6;
-}
-
-.chat-input-row {
-
-    display: flex;
-
-    gap: 10px;
-
-    margin-top: 18px;
-}
-
-#chatInput {
-
-    flex: 1;
-
-    padding: 14px;
-
-    border:
-        1px solid
-        #b8d9c2;
-
-    border-radius: 10px;
-
-    outline: none;
-
-    font-size: 15px;
-}
-
-#chatInput:focus {
-
-    border-color:
-        #087c3b;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(8,124,59,0.1);
-}
-
-.chat-button {
-
-    background:
-        #087c3b;
-
-    color: white;
-
-    border: none;
-
-    border-radius: 10px;
-
-    padding:
-        0 20px;
-
-    cursor: pointer;
-
-    font-weight: bold;
-}
-
-#chatAnswer {
-
-    margin-top: 18px;
-
-    padding: 20px;
-
-    background:
-        #f0faf3;
-
-    border-radius: 14px;
-
-    line-height: 1.7;
-
-    color: #385244;
-}
-
-#chatAnswer:empty {
-
-    display: none;
-}
-
-#chatAnswer h2,
-#chatAnswer h3 {
-
-    color:
-        #08713a;
-}
-
-
-/* =========================================================
-   NOTICE
-========================================================= */
-
-.notice {
-
-    margin-top: 18px;
-
-    background:
-        #f2faf4;
-
-    border-left:
-        4px solid
-        #0a9147;
-
-    padding: 15px;
-
-    border-radius: 8px;
-
-    color: #56705f;
-
-    font-size: 13px;
-
-    line-height: 1.6;
-}
-
-
-/* =========================================================
-   FOOTER
-========================================================= */
-
-.footer {
-
-    text-align: center;
-
-    color: rgba(255,255,255,0.8);
-
-    font-size: 13px;
-
-    padding-bottom: 30px;
-}
-
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width: 600px) {
-
-    .card {
-
-        padding: 20px;
-
-        border-radius: 17px;
-    }
-
-    .header {
-
-        padding-top: 30px;
-    }
-
-    .chat-input-row {
-
-        flex-direction: column;
-    }
-
-    .chat-button {
-
-        padding: 13px;
-    }
-
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Disease Detection & Management System</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9, #f1f8e9);
+            color: #1b3d25;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, #1b5e20, #2e7d32, #388e3c);
+            color: white;
+            padding: 28px 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 80, 30, 0.25);
+        }
+
+        .header h1 {
+            margin: 0 0 8px;
+            font-size: 30px;
+        }
+
+        .header p {
+            margin: 0;
+            opacity: 0.92;
+            font-size: 15px;
+        }
+
+        /* MAIN */
+        .main {
+            width: 94%;
+            max-width: 1100px;
+            margin: 30px auto 50px;
+        }
+
+        /* MODE SELECTOR */
+        .mode-selector {
+            background: rgba(255,255,255,0.92);
+            border-radius: 18px;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            background: #e8f5e9;
+            color: #256b2d;
+            font-size: 16px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .mode-btn.active {
+            background: #2e7d32;
+            color: white;
+            box-shadow: 0 4px 10px rgba(46,125,50,0.3);
+        }
+
+        /* DASHBOARD */
+        .dashboard {
+            background: rgba(255,255,255,0.94);
+            border-radius: 22px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.09);
+        }
+
+        .section-title {
+            margin-top: 0;
+            color: #1b5e20;
+            font-size: 25px;
+        }
+
+        .section-description {
+            color: #55705b;
+            line-height: 1.6;
+        }
+
+        /* UPLOAD */
+        .upload-box {
+            border: 2px dashed #66bb6a;
+            background: #f1f8e9;
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            margin-top: 22px;
+            transition: 0.2s;
+        }
+
+        .upload-box:hover {
+            background: #e8f5e9;
+            border-color: #2e7d32;
+        }
+
+        .upload-icon {
+            font-size: 45px;
+            margin-bottom: 10px;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            max-width: 500px;
+            margin: 15px auto;
+            padding: 12px;
+            background: white;
+            border: 1px solid #c8e6c9;
+            border-radius: 10px;
+        }
+
+        select {
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1px solid #a5d6a7;
+            background: white;
+            font-size: 15px;
+            margin: 10px;
+        }
+
+        button.action-btn {
+            border: none;
+            background: linear-gradient(135deg, #2e7d32, #43a047);
+            color: white;
+            padding: 13px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 8px;
+            box-shadow: 0 4px 10px rgba(46,125,50,0.25);
+            transition: 0.2s;
+        }
+
+        button.action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(46,125,50,0.3);
+        }
+
+        button.action-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* PREVIEW */
+        .preview {
+            max-width: 100%;
+            max-height: 420px;
+            display: none;
+            margin: 20px auto 0;
+            border-radius: 14px;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.15);
+        }
+
+        /* RESULTS */
+        .result-area {
+            margin-top: 25px;
+        }
+
+        .result-card {
+            background: #f1f8e9;
+            border-left: 6px solid #2e7d32;
+            border-radius: 12px;
+            padding: 22px;
+            margin-top: 18px;
+        }
+
+        .diagnosis-box {
+            background: linear-gradient(135deg, #1b5e20, #388e3c);
+            color: white;
+            padding: 24px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .diagnosis-label {
+            font-size: 13px;
+            text-transform: uppercase;
+            opacity: 0.85;
+            letter-spacing: 1px;
+        }
+
+        .diagnosis-name {
+            font-size: 27px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .confidence {
+            margin-top: 12px;
+            font-size: 15px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 18px;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+        }
+
+        .info-card h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+
+        .info-card p {
+            line-height: 1.6;
+        }
+
+        .info-card ol,
+        .info-card ul {
+            line-height: 1.7;
+            padding-left: 22px;
+        }
+
+        /* CHAT */
+        .chat-section {
+            margin-top: 22px;
+            background: #e8f5e9;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .chat-section h3 {
+            color: #1b5e20;
+            margin-top: 0;
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #a5d6a7;
+            border-radius: 10px;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .chat-answer {
+            margin-top: 15px;
+            background: white;
+            padding: 18px;
+            border-radius: 12px;
+            line-height: 1.65;
+        }
+
+        .chat-answer h2,
+        .chat-answer h3 {
+            color: #2e7d32;
+        }
+
+        /* FIELD SCAN */
+        .field-note {
+            background: #fff8e1;
+            border: 1px solid #f0d58c;
+            color: #6b5300;
+            padding: 14px;
+            border-radius: 10px;
+            margin-top: 18px;
+            text-align: left;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        #fieldImg {
+            width: 100%;
+            max-height: 650px;
+            object-fit: contain;
+            background: #e8f5e9;
+            border-radius: 14px;
+            margin-top: 20px;
+        }
+
+        .field-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+        }
+
+        .stat-number {
+            font-size: 26px;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        .stat-label {
+            color: #607d65;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        .field-status {
+            background: #e8f5e9;
+            border-left: 5px solid #2e7d32;
+            padding: 16px;
+            border-radius: 10px;
+            margin-top: 18px;
+            font-weight: bold;
+        }
+
+        /* LOADING */
+        .loading {
+            padding: 18px;
+            background: #f1f8e9;
+            border-radius: 10px;
+            color: #2e7d32;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .error {
+            color: #b71c1c;
+            background: #ffebee;
+            border-left: 5px solid #c62828;
+            padding: 14px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            color: #55705b;
+            font-size: 13px;
+            padding: 25px;
+        }
+
+        /* MOBILE */
+        @media (max-width: 700px) {
+
+            .header h1 {
+                font-size: 23px;
+            }
+
+            .main {
+                width: 95%;
+                margin-top: 20px;
+            }
+
+            .dashboard {
+                padding: 20px;
+            }
+
+            .mode-selector {
+                flex-direction: column;
+            }
+
+            .info-grid,
+            .field-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .diagnosis-name {
+                font-size: 22px;
+            }
+        }
+    </style>
 </head>
-
 
 <body>
 
+    <header class="header">
+        <h1>🌱 Crop Disease Detection & Management System</h1>
+        <p>Machine Learning-Based Crop Disease Detection, Pesticide Recommendation and Management</p>
+    </header>
 
-<!-- =====================================================
-     HEADER
-===================================================== -->
+    <main class="main">
 
-<header class="header">
+        <!-- MODE SELECTOR -->
+        <div class="mode-selector">
+            <button class="mode-btn active" id="leafModeBtn" onclick="showLeafMode()">
+                🌿 Single Leaf Diagnosis
+            </button>
 
-    <div class="logo">
-        🌿
-    </div>
-
-    <h1>
-        Crop Disease Detection
-        &amp; Management System
-    </h1>
-
-    <p>
-        Machine Learning-Based Crop Disease
-        Detection, Pesticide Recommendation
-        and Management Support
-    </p>
-
-</header>
-
-
-<main class="dashboard">
-
-
-<!-- =====================================================
-     ONE UPLOAD DASHBOARD
-===================================================== -->
-
-<section class="card upload-card">
-
-    <h2>
-        Analyze Your Crop
-    </h2>
-
-    <p class="upload-description">
-
-        Upload a picture of your crop.
-        It can be a single leaf, several leaves,
-        or a wider picture showing several plants.
-        The system will automatically determine
-        how to process the image.
-
-    </p>
-
-
-    <label
-        for="imageInput"
-        class="drop-area"
-        id="dropArea">
-
-        <div class="upload-icon">
-            📷
+            <button class="mode-btn" id="fieldModeBtn" onclick="showFieldMode()">
+                🌾 Field Screening
+            </button>
         </div>
 
-        <strong>
-            Tap to upload crop image
-        </strong>
 
-        <span>
-            JPG, JPEG or PNG
-        </span>
+        <!-- SINGLE LEAF DASHBOARD -->
+        <section class="dashboard" id="leafDashboard">
 
-    </label>
+            <h2 class="section-title">🌿 Single Leaf Diagnosis</h2>
 
-
-    <input
-        type="file"
-        id="imageInput"
-        accept="image/*"
-    >
-
-
-    <div
-        class="preview-wrapper"
-        id="previewWrapper">
-
-        <img
-            id="preview"
-            alt="Selected crop image"
-        >
-
-    </div>
-
-
-    <button
-        class="primary-button"
-        id="analyzeButton"
-        onclick="analyzeImage()">
-
-        🌱 Analyze Crop
-
-    </button>
-
-
-    <div class="notice">
-
-        <strong>How it works:</strong>
-        The system automatically processes a normal
-        leaf image directly. Wider images containing
-        multiple crop regions may be screened by
-        dividing them into regions and applying the
-        existing trained disease classifier to those
-        regions.
-
-    </div>
-
-</section>
-
-
-<!-- =====================================================
-     LOADING
-===================================================== -->
-
-<section
-    class="card loading"
-    id="loading">
-
-    <div class="spinner"></div>
-
-    <strong>
-        Analyzing your crop image...
-    </strong>
-
-    <p>
-        Please wait while the system processes
-        the image.
-    </p>
-
-</section>
-
-
-<!-- =====================================================
-     RESULTS
-===================================================== -->
-
-<section
-    class="card"
-    id="results">
-
-    <div
-        class="result-header">
-
-        <small id="resultMode">
-            Disease Prediction
-        </small>
-
-        <h2 id="diseaseName">
-            -
-        </h2>
-
-    </div>
-
-
-    <div
-        class="result-grid">
-
-
-        <div class="info-box">
-
-            <h3>
-                🌱 Crop
-            </h3>
-
-            <p id="cropName">
-                -
+            <p class="section-description">
+                Upload an image of a crop leaf. The system will analyze the image,
+                identify the crop disease, provide the confidence level, symptoms,
+                pesticide recommendation and management steps.
             </p>
 
-        </div>
+            <div class="upload-box">
 
+                <div class="upload-icon">📷</div>
 
-        <div class="info-box">
+                <strong>Upload a Crop Leaf Image</strong>
 
-            <h3>
-                🎯 Confidence
-            </h3>
+                <br>
 
-            <div
-                class="confidence-number"
-                id="confidence">
-                -
+                <input type="file" id="imageInput" accept="image/*">
+
+                <img id="preview" class="preview">
+
+                <br>
+
+                <button class="action-btn" onclick="predict()">
+                    🔍 Detect Disease
+                </button>
+
             </div>
 
-        </div>
+            <div id="result" class="result-area"></div>
+
+        </section>
 
 
-        <div class="info-box">
+        <!-- FIELD DASHBOARD -->
+        <section class="dashboard" id="fieldDashboard" style="display:none;">
 
-            <h3>
-                🔎 Symptoms
-            </h3>
+            <h2 class="section-title">🌾 Precision Agriculture Field Screening</h2>
 
-            <p id="symptoms">
-                -
+            <p class="section-description">
+                Upload a wider image containing multiple plants or leaves.
+                The system divides the image into regions and screens each
+                region using the existing crop disease classifier.
             </p>
 
-        </div>
+            <div class="upload-box">
 
-    </div>
+                <div class="upload-icon">🌾</div>
 
+                <strong>Upload a Wider Crop / Field Image</strong>
 
-    <div
-        class="info-box"
-        style="margin-top:16px;">
+                <br>
 
-        <h3>
-            🧪 Pesticide Recommendation
-            &amp; Management Steps
-        </h3>
+                <input type="file" id="fieldInput" accept="image/*">
 
-        <ol
-            class="recommendation-list"
-            id="recommendations">
-        </ol>
+                <br>
 
-    </div>
+                <label for="gridSize"><strong>Screening Grid:</strong></label>
 
-</section>
+                <select id="gridSize">
+                    <option value="3">3 × 3 (9 regions)</option>
+                    <option value="4" selected>4 × 4 (16 regions)</option>
+                    <option value="5">5 × 5 (25 regions)</option>
+                    <option value="6">6 × 6 (36 regions)</option>
+                </select>
 
+                <br>
 
-<!-- =====================================================
-     FIELD SCREENING RESULT
-===================================================== -->
+                <button class="action-btn" onclick="scanField()">
+                    🔍 Scan Field
+                </button>
 
-<section
-    class="card field-result"
-    id="fieldResult">
+            </div>
 
-    <span class="field-badge">
-        🌾 Automatic Field Screening
-    </span>
+            <div class="field-note">
+                <strong>Note:</strong>
+                The underlying classifier was trained and evaluated using
+                individual leaf images from the PlantVillage dataset, not
+                aerial or drone imagery. This module demonstrates a field-level
+                screening approach by applying the existing classifier to
+                regions of a wider image. Actual drone-based deployment would
+                require training and validation using aerial or field-level
+                imagery.
+            </div>
 
-    <h2 style="color:#075d2e;">
-        Region Screening Result
-    </h2>
+            <div id="fieldResult" class="result-area"></div>
 
-    <p style="color:#627569;line-height:1.6;">
+        </section>
 
-        The uploaded image was processed as a wider
-        crop image. The system divided the image into
-        regions and applied the existing disease
-        classifier to each region.
+    </main>
 
-    </p>
-
-
-    <img
-        id="fieldImage"
-        class="field-image"
-        alt="Annotated crop screening result"
-    >
-
-
-    <div
-        class="stats-grid">
-
-
-        <div class="stat">
-
-            <strong id="totalRegions">
-                0
-            </strong>
-
-            <span>
-                Regions screened
-            </span>
-
-        </div>
-
-
-        <div class="stat">
-
-            <strong id="healthyRegions">
-                0
-            </strong>
-
-            <span>
-                Healthy regions
-            </span>
-
-        </div>
-
-
-        <div class="stat">
-
-            <strong id="diseasedRegions">
-                0
-            </strong>
-
-            <span>
-                Flagged regions
-            </span>
-
-        </div>
-
-
-        <div class="stat">
-
-            <strong id="diseasePercentage">
-                0%
-            </strong>
-
-            <span>
-                Flagged percentage
-            </span>
-
-        </div>
-
-    </div>
-
-
-    <div
-        class="status-box">
-
-        <strong>
-            Screening Summary
-        </strong>
-
-        <p id="fieldStatus">
-            -
-        </p>
-
-        <p id="commonDisease">
-            -
-        </p>
-
-    </div>
-
-
-    <div
-        class="info-box"
-        style="margin-top:18px;">
-
-        <h3>
-            ⚠️ Important
-        </h3>
-
-        <p>
-
-            This field-screening feature applies the
-            existing leaf-level classifier to image
-            regions. It demonstrates a field-screening
-            approach but does not mean the model was
-            trained on drone or aerial imagery.
-
-        </p>
-
-    </div>
-
-</section>
-
-
-<!-- =====================================================
-     FARMER CHAT
-===================================================== -->
-
-<section
-    class="card chat-card"
-    id="chatCard">
-
-    <h2>
-        💬 Ask About Your Result
-    </h2>
-
-    <p class="chat-description">
-
-        Ask questions about the detected disease,
-        symptoms, pesticide recommendation,
-        management practices, or the screened crop.
-
-    </p>
-
-
-    <div class="chat-input-row">
-
-        <input
-            type="text"
-            id="chatInput"
-            placeholder="e.g. What should I do first?"
-        >
-
-        <button
-            class="chat-button"
-            onclick="askQuestion()">
-
-            Ask
-
-        </button>
-
-    </div>
-
-
-    <div id="chatAnswer"></div>
-
-</section>
-
-
-</main>
-
-
-<footer class="footer">
-
-    Crop Disease Detection &amp;
-    Management System
-
-</footer>
+    <footer>
+        Crop Disease Detection & Management System
+    </footer>
 
 
 <script>
 
-/* =========================================================
-   VARIABLES
-========================================================= */
+    /* =========================================================
+       DISEASE DISPLAY NAMES
+       Converts the model's technical class names into
+       farmer-friendly crop + disease names.
+       ========================================================= */
 
-const imageInput =
-    document.getElementById(
-        "imageInput"
-    );
+    function formatDiseaseName(label) {
 
-const preview =
-    document.getElementById(
-        "preview"
-    );
+        const diseaseNames = {
 
-const previewWrapper =
-    document.getElementById(
-        "previewWrapper"
-    );
+            'Pepper,_bell___Bacterial_spot':
+                'Pepper Bacterial Spot',
 
-const analyzeButton =
-    document.getElementById(
-        "analyzeButton"
-    );
+            'Pepper,_bell___healthy':
+                'Pepper Healthy',
 
-const loading =
-    document.getElementById(
-        "loading"
-    );
+            'Potato___Early_blight':
+                'Potato Early Blight',
 
-const results =
-    document.getElementById(
-        "results"
-    );
+            'Potato___Late_blight':
+                'Potato Late Blight',
 
-const fieldResult =
-    document.getElementById(
-        "fieldResult"
-    );
+            'Potato___healthy':
+                'Potato Healthy',
 
-const chatCard =
-    document.getElementById(
-        "chatCard"
-    );
+            'Tomato___Bacterial_spot':
+                'Tomato Bacterial Spot',
 
-const chatInput =
-    document.getElementById(
-        "chatInput"
-    );
+            'Tomato___Early_blight':
+                'Tomato Early Blight',
 
-const chatAnswer =
-    document.getElementById(
-        "chatAnswer"
-    );
+            'Tomato___Late_blight':
+                'Tomato Late Blight',
 
-let currentDisease = "";
+            'Tomato___Leaf_Mold':
+                'Tomato Leaf Mold',
 
-let currentContext = "";
+            'Tomato___Septoria_leaf_spot':
+                'Tomato Septoria Leaf Spot',
+
+            'Tomato___Spider_mites Two-spotted_spider_mite':
+                'Tomato Spider Mites',
+
+            'Tomato___Target_Spot':
+                'Tomato Target Spot',
+
+            'Tomato___Tomato_Yellow_Leaf_Curl_Virus':
+                'Tomato Yellow Leaf Curl Virus',
+
+            'Tomato___Tomato_mosaic_virus':
+                'Tomato Mosaic Virus',
+
+            'Tomato___healthy':
+                'Tomato Healthy'
+        };
+
+        return diseaseNames[label] || label;
+    }
 
 
-/* =========================================================
-   IMAGE SELECTION
-========================================================= */
+    /* =========================================================
+       MODE SWITCHING
+       ========================================================= */
 
-imageInput.addEventListener(
-    "change",
-    function() {
+    function showLeafMode() {
 
-        const file =
-            this.files[0];
+        document.getElementById('leafDashboard').style.display = 'block';
+        document.getElementById('fieldDashboard').style.display = 'none';
+
+        document.getElementById('leafModeBtn').classList.add('active');
+        document.getElementById('fieldModeBtn').classList.remove('active');
+    }
+
+
+    function showFieldMode() {
+
+        document.getElementById('leafDashboard').style.display = 'none';
+        document.getElementById('fieldDashboard').style.display = 'block';
+
+        document.getElementById('leafModeBtn').classList.remove('active');
+        document.getElementById('fieldModeBtn').classList.add('active');
+    }
+
+
+    /* =========================================================
+       SINGLE LEAF PREVIEW
+       ========================================================= */
+
+    const imageInput = document.getElementById('imageInput');
+    const preview = document.getElementById('preview');
+
+    imageInput.addEventListener('change', function() {
+
+        const file = this.files[0];
+
+        if (file) {
+
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = 'block';
+
+        }
+
+    });
+
+
+    /* =========================================================
+       SINGLE LEAF PREDICTION
+       ========================================================= */
+
+    let currentDisease = '';
+
+    function predict() {
+
+        const file = imageInput.files[0];
+        const resultDiv = document.getElementById('result');
 
         if (!file) {
+
+            resultDiv.innerHTML =
+                '<div class="error">Please select a crop leaf image first.</div>';
+
             return;
         }
 
-        preview.src =
-            URL.createObjectURL(
-                file
-            );
+        resultDiv.innerHTML =
+            '<div class="loading">🔍 Analyzing crop leaf...</div>';
 
-        previewWrapper.style.display =
-            "block";
+        const formData = new FormData();
 
-        results.style.display =
-            "none";
+        formData.append('file', file);
 
-        fieldResult.style.display =
-            "none";
+        fetch('/predict', {
 
-        chatCard.style.display =
-            "none";
-
-        chatAnswer.innerHTML =
-            "";
-
-        currentDisease =
-            "";
-
-        currentContext =
-            "";
-    }
-);
-
-
-/* =========================================================
-   ANALYZE IMAGE
-========================================================= */
-
-function analyzeImage() {
-
-    const file =
-        imageInput.files[0];
-
-    if (!file) {
-
-        alert(
-            "Please select a crop image first."
-        );
-
-        return;
-    }
-
-
-    const formData =
-        new FormData();
-
-    formData.append(
-        "file",
-        file
-    );
-
-
-    analyzeButton.disabled =
-        true;
-
-    results.style.display =
-        "none";
-
-    fieldResult.style.display =
-        "none";
-
-    chatCard.style.display =
-        "none";
-
-    loading.style.display =
-        "block";
-
-
-    fetch(
-        "/analyze",
-        {
-            method: "POST",
+            method: 'POST',
             body: formData
-        }
-    )
 
-    .then(
-        response =>
-            response.json()
-    )
+        })
 
-    .then(
-        data => {
+        .then(response => response.json())
 
-            loading.style.display =
-                "none";
-
-            analyzeButton.disabled =
-                false;
-
+        .then(data => {
 
             if (data.error) {
 
-                alert(
-                    data.error
-                );
+                resultDiv.innerHTML =
+                    `<div class="error">${data.error}</div>`;
 
                 return;
             }
 
 
-            /* ==========================================
-               SINGLE IMAGE
-            ========================================== */
+            /* Keep the original model label internally
+               for the chat/backend. */
 
-            if (
-                data.mode ===
-                "single"
-            ) {
-
-                showSingleResult(
-                    data
-                );
-
-            }
+            currentDisease = data.disease;
 
 
-            /* ==========================================
-               FIELD / WIDE IMAGE
-            ========================================== */
+            /* Convert technical model label into
+               full farmer-friendly diagnosis. */
 
-            else if (
-                data.mode ===
-                "field"
-            ) {
+            const displayDisease =
+                formatDiseaseName(data.disease);
 
-                showFieldResult(
-                    data
-                );
 
-            }
+            const stepsHtml =
+                data.recommendation_steps
+                    .map(step => `<li>${step}</li>`)
+                    .join('');
 
+
+            resultDiv.innerHTML = `
+
+                <div class="diagnosis-box">
+
+                    <div class="diagnosis-label">
+                        Disease Detected
+                    </div>
+
+                    <div class="diagnosis-name">
+                        🌿 ${displayDisease}
+                    </div>
+
+                    <div class="confidence">
+                        Model Confidence: <strong>${data.confidence}</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="info-grid">
+
+                    <div class="info-card">
+
+                        <h3>🔎 Symptoms</h3>
+
+                        <p>
+                            ${data.symptoms}
+                        </p>
+
+                    </div>
+
+
+                    <div class="info-card">
+
+                        <h3>🧪 Pesticide Recommendation</h3>
+
+                        <p>
+                            The following management recommendations
+                            are provided based on the detected condition:
+                        </p>
+
+                        <ol>
+                            ${stepsHtml}
+                        </ol>
+
+                    </div>
+
+                </div>
+
+
+                <div class="chat-section">
+
+                    <h3>💬 Ask About This Diagnosis</h3>
+
+                    <p>
+                        You can ask the agricultural assistant a question
+                        about the detected condition.
+                    </p>
+
+                    <input
+                        type="text"
+                        id="chatInput"
+                        class="chat-input"
+                        placeholder="e.g. How can I manage this disease?"
+                    >
+
+                    <button
+                        class="action-btn"
+                        onclick="askQuestion()">
+                        Ask Question
+                    </button>
+
+                    <div
+                        id="chatAnswer"
+                        class="chat-answer"
+                        style="display:none;">
+                    </div>
+
+                </div>
+            `;
+
+        })
+
+        .catch(error => {
+
+            console.error(error);
+
+            resultDiv.innerHTML =
+                '<div class="error">Error connecting to server.</div>';
+
+        });
+
+    }
+
+
+    /* =========================================================
+       FARMER CHAT
+       ========================================================= */
+
+    function askQuestion() {
+
+        const chatInput = document.getElementById('chatInput');
+        const chatAnswer = document.getElementById('chatAnswer');
+
+        const question = chatInput.value.trim();
+
+        if (!question) {
+
+            chatAnswer.style.display = 'block';
+
+            chatAnswer.innerHTML =
+                '<div class="error">Please enter a question.</div>';
+
+            return;
         }
-    )
 
-    .catch(
-        error => {
 
-            console.error(
-                error
-            );
+        chatAnswer.style.display = 'block';
 
-            loading.style.display =
-                "none";
+        chatAnswer.innerHTML =
+            '<div class="loading">💬 Preparing response...</div>';
 
-            analyzeButton.disabled =
-                false;
 
-            alert(
-                "Unable to connect to the server."
-            );
-        }
-    );
-}
+        fetch('/chat', {
 
-
-/* =========================================================
-   SHOW SINGLE RESULT
-========================================================= */
-
-function showSingleResult(
-    data
-) {
-
-    results.style.display =
-        "block";
-
-
-    document.getElementById(
-        "resultMode"
-    ).textContent =
-        "Disease Prediction";
-
-
-    document.getElementById(
-        "diseaseName"
-    ).textContent =
-        data.display_name;
-
-
-    document.getElementById(
-        "cropName"
-    ).textContent =
-        getCropName(
-            data.display_name
-        );
-
-
-    document.getElementById(
-        "confidence"
-    ).textContent =
-        data.confidence +
-        "%";
-
-
-    document.getElementById(
-        "symptoms"
-    ).textContent =
-        data.symptoms;
-
-
-    const list =
-        document.getElementById(
-            "recommendations"
-        );
-
-    list.innerHTML =
-        "";
-
-
-    data.recommendation_steps
-        .forEach(
-            step => {
-
-                const li =
-                    document.createElement(
-                        "li"
-                    );
-
-                li.textContent =
-                    step;
-
-                list.appendChild(
-                    li
-                );
-            }
-        );
-
-
-    currentDisease =
-        data.display_name;
-
-
-    currentContext =
-        "Single image diagnosis: " +
-        data.display_name +
-        ". Confidence: " +
-        data.confidence +
-        "%. Symptoms: " +
-        data.symptoms;
-
-
-    chatCard.style.display =
-        "block";
-
-
-    results.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
-}
-
-
-/* =========================================================
-   SHOW FIELD RESULT
-========================================================= */
-
-function showFieldResult(
-    data
-) {
-
-    fieldResult.style.display =
-        "block";
-
-
-    results.style.display =
-        "none";
-
-
-    document.getElementById(
-        "fieldImage"
-    ).src =
-        "data:image/jpeg;base64," +
-        data.image;
-
-
-    document.getElementById(
-        "totalRegions"
-    ).textContent =
-        data.total_tiles;
-
-
-    document.getElementById(
-        "healthyRegions"
-    ).textContent =
-        data.healthy_count;
-
-
-    document.getElementById(
-        "diseasedRegions"
-    ).textContent =
-        data.diseased_count;
-
-
-    document.getElementById(
-        "diseasePercentage"
-    ).textContent =
-        data.diseased_pct +
-        "%";
-
-
-    document.getElementById(
-        "fieldStatus"
-    ).textContent =
-        data.field_status;
-
-
-    const common =
-        data.most_common_disease
-            ? "Most frequently flagged condition: " +
-              data.most_common_disease
-            : "No disease condition was flagged.";
-
-
-    document.getElementById(
-        "commonDisease"
-    ).textContent =
-        common;
-
-
-    currentDisease =
-        data.most_common_disease ||
-        "Multiple crop regions";
-
-
-    currentContext =
-        "Automatic field screening result. " +
-        "Regions screened: " +
-        data.total_tiles +
-        ". Healthy regions: " +
-        data.healthy_count +
-        ". Flagged regions: " +
-        data.diseased_count +
-        ". Flagged percentage: " +
-        data.diseased_pct +
-        "%. Most frequently flagged condition: " +
-        (
-            data.most_common_disease ||
-            "None"
-        ) +
-        ".";
-
-
-    chatCard.style.display =
-        "block";
-
-
-    fieldResult.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
-}
-
-
-/* =========================================================
-   GET CROP NAME
-========================================================= */
-
-function getCropName(
-    diseaseName
-) {
-
-    if (
-        diseaseName
-            .toLowerCase()
-            .startsWith("tomato")
-    ) {
-
-        return "Tomato";
-
-    }
-
-    if (
-        diseaseName
-            .toLowerCase()
-            .startsWith("potato")
-    ) {
-
-        return "Potato";
-
-    }
-
-    if (
-        diseaseName
-            .toLowerCase()
-            .startsWith("pepper")
-    ) {
-
-        return "Pepper Bell";
-
-    }
-
-    return "Crop identified from model label";
-}
-
-
-/* =========================================================
-   CHAT
-========================================================= */
-
-function askQuestion() {
-
-    const question =
-        chatInput.value.trim();
-
-
-    if (!question) {
-
-        return;
-    }
-
-
-    chatAnswer.innerHTML =
-        "<p>🌿 Thinking...</p>";
-
-
-    fetch(
-        "/chat",
-        {
-            method: "POST",
+            method: 'POST',
 
             headers: {
-                "Content-Type":
-                    "application/json"
+                'Content-Type': 'application/json'
             },
 
             body: JSON.stringify({
 
-                disease:
-                    currentDisease,
+                disease: currentDisease,
 
-                question:
-                    question,
+                question: question
 
-                context:
-                    currentContext
             })
-        }
-    )
 
-    .then(
-        response =>
-            response.json()
-    )
+        })
 
-    .then(
-        data => {
+        .then(response => response.json())
+
+        .then(data => {
 
             if (data.error) {
 
                 chatAnswer.innerHTML =
-                    "<p style='color:red;'>" +
-                    data.error +
-                    "</p>";
+                    `<div class="error">${data.error}</div>`;
 
                 return;
             }
 
 
             chatAnswer.innerHTML =
-                marked.parse(
-                    data.answer
-                );
-        }
-    )
+                marked.parse(data.answer);
 
-    .catch(
-        error => {
+        })
 
-            console.error(
-                error
-            );
+        .catch(error => {
+
+            console.error(error);
 
             chatAnswer.innerHTML =
-                "<p style='color:red;'>" +
-                "Unable to connect to the agricultural assistant." +
-                "</p>";
-        }
-    );
-}
+                '<div class="error">Error connecting to server.</div>';
 
-
-/* =========================================================
-   ENTER KEY FOR CHAT
-========================================================= */
-
-chatInput.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (
-            event.key ===
-            "Enter"
-        ) {
-
-            askQuestion();
-        }
+        });
 
     }
-);
+
+
+    /* =========================================================
+       FIELD SCANNING
+       ========================================================= */
+
+    const fieldInput =
+        document.getElementById('fieldInput');
+
+    const gridSize =
+        document.getElementById('gridSize');
+
+    const fieldResult =
+        document.getElementById('fieldResult');
+
+
+    function scanField() {
+
+        const file = fieldInput.files[0];
+
+        if (!file) {
+
+            fieldResult.innerHTML =
+                '<div class="error">Please select a field image first.</div>';
+
+            return;
+        }
+
+
+        fieldResult.innerHTML =
+            '<div class="loading">🌾 Scanning field regions... This may take longer than a single prediction.</div>';
+
+
+        const n = gridSize.value;
+
+        const formData = new FormData();
+
+        formData.append('file', file);
+
+        formData.append('rows', n);
+
+        formData.append('cols', n);
+
+
+        fetch('/field_scan', {
+
+            method: 'POST',
+
+            body: formData
+
+        })
+
+        .then(response => response.json())
+
+        .then(data => {
+
+            if (data.error) {
+
+                fieldResult.innerHTML =
+                    `<div class="error">${data.error}</div>`;
+
+                return;
+            }
+
+
+            const mostCommon =
+                data.most_common_disease
+                    ? formatDiseaseName(data.most_common_disease)
+                    : 'None';
+
+
+            fieldResult.innerHTML = `
+
+                <div class="diagnosis-box">
+
+                    <div class="diagnosis-label">
+                        Field Screening Result
+                    </div>
+
+                    <div class="diagnosis-name">
+                        🌾 ${mostCommon}
+                    </div>
+
+                    <div class="confidence">
+                        Most frequently flagged condition
+                    </div>
+
+                </div>
+
+
+                <img
+                    id="fieldImg"
+                    src="data:image/jpeg;base64,${data.image}"
+                    alt="Annotated field screening result"
+                >
+
+
+                <div class="field-stats">
+
+                    <div class="stat-card">
+
+                        <div class="stat-number">
+                            ${data.total_tiles}
+                        </div>
+
+                        <div class="stat-label">
+                            Regions Scanned
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-number">
+                            ${data.healthy_count}
+                        </div>
+
+                        <div class="stat-label">
+                            Healthy Regions
+                            (${data.healthy_pct}%)
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-number">
+                            ${data.diseased_count}
+                        </div>
+
+                        <div class="stat-label">
+                            Flagged Regions
+                            (${data.diseased_pct}%)
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="field-status">
+
+                    ${data.field_status}
+
+                </div>
+
+
+                <div class="info-card" style="margin-top:20px;">
+
+                    <h3>🔬 Screening Interpretation</h3>
+
+                    <p>
+                        The field image was divided into
+                        <strong>${data.rows} × ${data.cols}</strong>
+                        regions. Each region was screened using
+                        the existing crop disease classifier.
+                    </p>
+
+                    <p>
+                        The most frequently flagged condition was:
+                        <strong>${mostCommon}</strong>
+                    </p>
+
+                </div>
+
+            `;
+
+        })
+
+        .catch(error => {
+
+            console.error(error);
+
+            fieldResult.innerHTML =
+                '<div class="error">Error connecting to server.</div>';
+
+        });
+
+    }
 
 </script>
 
 </body>
-
 </html>
