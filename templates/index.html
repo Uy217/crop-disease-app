@@ -27,10 +27,6 @@
         color: #183b2a;
     }
 
-    /* ================================
-       HEADER
-    ================================= */
-
     header {
         background: rgba(3, 48, 25, 0.92);
         color: white;
@@ -77,10 +73,6 @@
         font-size: 12px;
     }
 
-    /* ================================
-       MAIN
-    ================================= */
-
     main {
         width: 94%;
         max-width: 1200px;
@@ -102,10 +94,6 @@
         line-height: 1.7;
         opacity: 0.9;
     }
-
-    /* ================================
-       MODE TABS
-    ================================= */
 
     .mode-tabs {
         display: grid;
@@ -145,10 +133,6 @@
     .mode-tab small {
         opacity: 0.75;
     }
-
-    /* ================================
-       MAIN CARD
-    ================================= */
 
     .workspace {
         background: #e8f6ec;
@@ -191,10 +175,6 @@
         background: #f7fbf8;
     }
 
-    /* ================================
-       PREVIEW
-    ================================= */
-
     .preview-box {
         margin-top: 20px;
         display: none;
@@ -207,10 +187,6 @@
         object-fit: contain;
         box-shadow: 0 5px 20px rgba(0,0,0,0.12);
     }
-
-    /* ================================
-       CONTROLS
-    ================================= */
 
     .controls {
         display: flex;
@@ -256,10 +232,6 @@
         transform: none;
     }
 
-    /* ================================
-       FIELD NOTE
-    ================================= */
-
     .field-note {
         margin-top: 18px;
         padding: 14px;
@@ -271,10 +243,6 @@
         font-size: 13px;
         line-height: 1.6;
     }
-
-    /* ================================
-       LOADING
-    ================================= */
 
     .loading {
         display: none;
@@ -299,10 +267,6 @@
             transform: rotate(360deg);
         }
     }
-
-    /* ================================
-       RESULTS
-    ================================= */
 
     #results {
         display: none;
@@ -365,10 +329,6 @@
         font-size: 14px;
     }
 
-    /* ================================
-       FIELD IMAGE
-    ================================= */
-
     #fieldImage {
         width: 100%;
         border-radius: 16px;
@@ -401,10 +361,6 @@
         color: #64746b;
     }
 
-    /* ================================
-       CONDITIONS
-    ================================= */
-
     .condition {
         display: flex;
         justify-content: space-between;
@@ -428,10 +384,6 @@
         font-size: 12px;
         font-weight: bold;
     }
-
-    /* ================================
-       CHAT
-    ================================= */
 
     #chatSection {
         display: none;
@@ -501,10 +453,6 @@
         margin-bottom: 7px;
     }
 
-    /* ================================
-       DISCLAIMER
-    ================================= */
-
     .disclaimer {
         margin-top: 22px;
         padding: 14px;
@@ -515,10 +463,6 @@
         line-height: 1.6;
     }
 
-    /* ================================
-       ERROR
-    ================================= */
-
     .error {
         color: #a51e1e;
         background: #ffecec;
@@ -526,10 +470,6 @@
         border-radius: 9px;
         margin-top: 15px;
     }
-
-    /* ================================
-       RESPONSIVE
-    ================================= */
 
     @media (max-width: 800px) {
 
@@ -621,8 +561,6 @@
 </section>
 
 
-<!-- MODE SELECTION -->
-
 <div class="mode-tabs">
 
     <button
@@ -657,11 +595,7 @@
 </div>
 
 
-<!-- WORKSPACE -->
-
 <section class="workspace">
-
-    <!-- SINGLE MODE -->
 
     <div id="singleMode">
 
@@ -706,8 +640,6 @@
 
     </div>
 
-
-    <!-- FIELD MODE -->
 
     <div
         id="fieldMode"
@@ -789,8 +721,6 @@
     </div>
 
 
-    <!-- LOADING -->
-
     <div
         class="loading"
         id="loading"
@@ -804,8 +734,8 @@
 
     </div>
 
+    <div id="errorBox"></div>
 
-    <!-- RESULTS -->
 
     <section id="results">
 
@@ -814,8 +744,6 @@
         </h2>
 
         <div class="result-grid">
-
-            <!-- DIAGNOSIS -->
 
             <div class="result-card">
 
@@ -831,8 +759,6 @@
             </div>
 
 
-            <!-- CONFIDENCE -->
-
             <div class="result-card">
 
                 <h3>📊 Confidence</h3>
@@ -847,8 +773,6 @@
             </div>
 
 
-            <!-- TYPE -->
-
             <div class="result-card">
 
                 <h3>🔬 Analysis Type</h3>
@@ -860,8 +784,6 @@
             </div>
 
 
-            <!-- SYMPTOMS -->
-
             <div class="result-card full">
 
                 <h3>🔎 Symptoms / Observations</h3>
@@ -870,8 +792,6 @@
 
             </div>
 
-
-            <!-- PESTICIDE -->
 
             <div class="result-card">
 
@@ -882,8 +802,6 @@
             </div>
 
 
-            <!-- MANAGEMENT -->
-
             <div class="result-card">
 
                 <h3>🛠️ Management Steps</h3>
@@ -892,8 +810,6 @@
 
             </div>
 
-
-            <!-- FIELD RESULTS -->
 
             <div
                 class="result-card full"
@@ -935,8 +851,6 @@
             </div>
 
 
-            <!-- DETECTED CONDITIONS -->
-
             <div
                 class="result-card full"
                 id="conditionsCard"
@@ -949,8 +863,6 @@
 
             </div>
 
-
-            <!-- FIELD STATUS -->
 
             <div
                 class="result-card full"
@@ -966,8 +878,6 @@
 
         </div>
 
-
-        <!-- CHAT -->
 
         <section id="chatSection">
 
@@ -1002,952 +912,306 @@
 
         </section>
 
+
+        <div class="disclaimer">
+            This tool provides decision support based on a trained machine learning
+            model and should be used alongside, not in place of, professional
+            agronomic advice.
+        </div>
+
     </section>
 
 </section>
 
-
-<div class="disclaimer">
-
-    <strong>System note:</strong>
-    Disease results are machine learning predictions based on
-    the trained model and should be considered screening results.
-    Pesticide and management recommendations should be considered
-    alongside appropriate agricultural guidance and product labels.
-
-</div>
-
-</main><script>
-
-    /* =========================================================
-       GLOBAL VARIABLES
-    ========================================================= */
-
-    let currentMode = "single";
-
-    let currentDisease = "";
-
-    let currentFieldContext = "";
-
-    let fieldData = null;
+</main>
 
 
-    /* =========================================================
-       MODE SWITCHING
-    ========================================================= */
+<script>
+
+    const singleTab = document.getElementById('singleTab');
+    const fieldTab = document.getElementById('fieldTab');
+    const singleMode = document.getElementById('singleMode');
+    const fieldMode = document.getElementById('fieldMode');
+
+    const imageInput = document.getElementById('imageInput');
+    const preview = document.getElementById('preview');
+    const singlePreview = document.getElementById('singlePreview');
+
+    const fieldInput = document.getElementById('fieldInput');
+    const fieldPreviewImage = document.getElementById('fieldPreviewImage');
+    const fieldPreview = document.getElementById('fieldPreview');
+    const gridSize = document.getElementById('gridSize');
+
+    const loading = document.getElementById('loading');
+    const loadingText = document.getElementById('loadingText');
+    const errorBox = document.getElementById('errorBox');
+
+    const results = document.getElementById('results');
+    const diseaseResult = document.getElementById('diseaseResult');
+    const confidenceResult = document.getElementById('confidenceResult');
+    const analysisType = document.getElementById('analysisType');
+    const symptomsResult = document.getElementById('symptomsResult');
+    const pesticideResult = document.getElementById('pesticideResult');
+    const managementResult = document.getElementById('managementResult');
+
+    const fieldResultsCard = document.getElementById('fieldResultsCard');
+    const fieldImage = document.getElementById('fieldImage');
+    const totalRegions = document.getElementById('totalRegions');
+    const healthyRegions = document.getElementById('healthyRegions');
+    const diseasedRegions = document.getElementById('diseasedRegions');
+    const averageConfidence = document.getElementById('averageConfidence');
+
+    const conditionsCard = document.getElementById('conditionsCard');
+    const conditionsList = document.getElementById('conditionsList');
+
+    const fieldStatusCard = document.getElementById('fieldStatusCard');
+    const fieldStatus = document.getElementById('fieldStatus');
+
+    const chatSection = document.getElementById('chatSection');
+    const chatInput = document.getElementById('chatInput');
+    const chatAnswer = document.getElementById('chatAnswer');
+
+    let currentMode = 'single';
+    let currentDiseaseKey = '';
 
     function switchMode(mode) {
 
         currentMode = mode;
 
-        document.getElementById("results").style.display = "none";
+        if (mode === 'single') {
 
-        document.getElementById("chatSection").style.display = "none";
+            singleTab.classList.add('active');
+            fieldTab.classList.remove('active');
 
-        document.getElementById("chatAnswer").style.display = "none";
-
-        document.getElementById("chatAnswer").innerHTML = "";
-
-        if (mode === "single") {
-
-            document.getElementById("singleMode").style.display = "block";
-
-            document.getElementById("fieldMode").style.display = "none";
-
-            document.getElementById("singleTab").classList.add("active");
-
-            document.getElementById("fieldTab").classList.remove("active");
+            singleMode.style.display = 'block';
+            fieldMode.style.display = 'none';
 
         } else {
 
-            document.getElementById("singleMode").style.display = "none";
+            fieldTab.classList.add('active');
+            singleTab.classList.remove('active');
 
-            document.getElementById("fieldMode").style.display = "block";
-
-            document.getElementById("singleTab").classList.remove("active");
-
-            document.getElementById("fieldTab").classList.add("active");
+            fieldMode.style.display = 'block';
+            singleMode.style.display = 'none';
 
         }
 
-    }
-
-
-    /* =========================================================
-       SINGLE IMAGE PREVIEW
-    ========================================================= */
-
-    document
-        .getElementById("imageInput")
-        .addEventListener("change", function() {
-
-            const file = this.files[0];
-
-            if (!file) return;
-
-            const preview =
-                document.getElementById("preview");
-
-            preview.src =
-                URL.createObjectURL(file);
-
-            document
-                .getElementById("singlePreview")
-                .style.display = "block";
-
-        });
-
-
-    /* =========================================================
-       FIELD IMAGE PREVIEW
-    ========================================================= */
-
-    document
-        .getElementById("fieldInput")
-        .addEventListener("change", function() {
-
-            const file = this.files[0];
-
-            if (!file) return;
-
-            const preview =
-                document.getElementById(
-                    "fieldPreviewImage"
-                );
-
-            preview.src =
-                URL.createObjectURL(file);
-
-            document
-                .getElementById("fieldPreview")
-                .style.display = "block";
-
-        });
-
-
-    /* =========================================================
-       LOADING
-    ========================================================= */
-
-    function showLoading(message) {
-
-        document
-            .getElementById("loading")
-            .style.display = "block";
-
-        document
-            .getElementById("loadingText")
-            .textContent = message;
+        resetResults();
 
     }
 
+    function resetResults() {
 
-    function hideLoading() {
+        results.style.display = 'none';
+        errorBox.innerHTML = '';
 
-        document
-            .getElementById("loading")
-            .style.display = "none";
+        chatSection.style.display = 'none';
+        chatInput.value = '';
+        chatAnswer.innerHTML = '';
+        chatAnswer.style.display = 'none';
+        currentDiseaseKey = '';
+
+        fieldResultsCard.style.display = 'none';
+        conditionsCard.style.display = 'none';
+        fieldStatusCard.style.display = 'none';
 
     }
 
+    function showError(message) {
+        errorBox.innerHTML = `<div class="error">${message}</div>`;
+    }
 
-    /* =========================================================
-       DISPLAY LIST
-    ========================================================= */
-
-    function populateList(elementId, items) {
-
-        const element =
-            document.getElementById(elementId);
-
-        element.innerHTML = "";
-
-        if (!items || items.length === 0) {
-
-            const li =
-                document.createElement("li");
-
-            li.textContent =
-                "No additional recommendation available.";
-
-            element.appendChild(li);
-
-            return;
-
+    imageInput.addEventListener('change', function () {
+        const file = this.files[0];
+        resetResults();
+        if (file) {
+            preview.src = URL.createObjectURL(file);
+            singlePreview.style.display = 'block';
+        } else {
+            singlePreview.style.display = 'none';
         }
+    });
 
-        items.forEach(function(item) {
-
-            const li =
-                document.createElement("li");
-
-            li.textContent = item;
-
-            element.appendChild(li);
-
-        });
-
-    }
-
-
-    /* =========================================================
-       SINGLE LEAF PREDICTION
-    ========================================================= */
+    fieldInput.addEventListener('change', function () {
+        const file = this.files[0];
+        resetResults();
+        if (file) {
+            fieldPreviewImage.src = URL.createObjectURL(file);
+            fieldPreview.style.display = 'block';
+        } else {
+            fieldPreview.style.display = 'none';
+        }
+    });
 
     function predict() {
 
-        const file =
-            document.getElementById(
-                "imageInput"
-            ).files[0];
+        const file = imageInput.files[0];
 
         if (!file) {
-
-            alert(
-                "Please select a crop leaf image first."
-            );
-
+            showError('Please select a leaf image first.');
             return;
-
         }
 
-        showLoading(
-            "Analysing crop leaf..."
-        );
+        resetResults();
+        loadingText.textContent = 'Analysing leaf image...';
+        loading.style.display = 'block';
 
-        document
-            .getElementById("results")
-            .style.display = "none";
+        const formData = new FormData();
+        formData.append('file', file);
 
-        const formData =
-            new FormData();
+        fetch('/predict', { method: 'POST', body: formData })
+            .then(response => response.json())
+            .then(data => {
 
-        formData.append(
-            "file",
-            file
-        );
+                loading.style.display = 'none';
 
-        fetch(
-            "/predict",
-            {
-                method: "POST",
-                body: formData
-            }
-        )
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
 
-        .then(function(response) {
+                currentDiseaseKey = data.disease;
 
-            return response.json();
+                diseaseResult.textContent = data.display_name;
+                confidenceResult.textContent = data.confidence;
+                analysisType.textContent = 'Single Leaf';
 
-        })
+                symptomsResult.textContent = data.symptoms;
 
-        .then(function(data) {
+                const { pesticideSteps, managementSteps } = splitSteps(data.recommendation_steps);
 
-            hideLoading();
+                pesticideResult.innerHTML = pesticideSteps.length
+                    ? pesticideSteps.map(s => `<li>${s}</li>`).join('')
+                    : '<li>No specific pesticide treatment required.</li>';
 
-            if (data.error) {
+                managementResult.innerHTML = managementSteps.length
+                    ? managementSteps.map(s => `<li>${s}</li>`).join('')
+                    : '<li>No additional management steps.</li>';
 
-                alert(data.error);
+                results.style.display = 'block';
+                chatSection.style.display = 'block';
 
-                return;
-
-            }
-
-            currentMode = "single";
-
-            currentDisease =
-                data.disease;
-
-            currentFieldContext = "";
-
-            fieldData = null;
-
-
-            /* -----------------------------
-               BASIC RESULT
-            ----------------------------- */
-
-            document
-                .getElementById("diseaseResult")
-                .textContent =
-                    data.label || data.disease;
-
-            document
-                .getElementById("confidenceResult")
-                .textContent =
-                    data.confidence;
-
-            document
-                .getElementById("analysisType")
-                .textContent =
-                    "Single Leaf Analysis";
-
-
-            /* -----------------------------
-               SYMPTOMS
-            ----------------------------- */
-
-            document
-                .getElementById("symptomsResult")
-                .textContent =
-                    data.symptoms;
-
-
-            /* -----------------------------
-               RECOMMENDATIONS
-            ----------------------------- */
-
-            populateList(
-                "pesticideResult",
-                data.recommendation_steps
-            );
-
-            populateList(
-                "managementResult",
-                data.recommendation_steps
-            );
-
-
-            /*
-             * The backend currently returns the
-             * recommendation list as one combined
-             * management/pesticide list.
-             *
-             * We display it in both sections so
-             * the existing recommendation system
-             * remains visible.
-             */
-
-
-            /* -----------------------------
-               HIDE FIELD-SPECIFIC SECTIONS
-            ----------------------------- */
-
-            document
-                .getElementById("fieldResultsCard")
-                .style.display = "none";
-
-            document
-                .getElementById("conditionsCard")
-                .style.display = "none";
-
-            document
-                .getElementById("fieldStatusCard")
-                .style.display = "none";
-
-
-            /* -----------------------------
-               SHOW RESULTS
-            ----------------------------- */
-
-            document
-                .getElementById("results")
-                .style.display = "block";
-
-            document
-                .getElementById("chatSection")
-                .style.display = "block";
-
-
-            window.scrollTo({
-                top:
-                    document
-                        .getElementById("results")
-                        .offsetTop - 20,
-                behavior: "smooth"
+            })
+            .catch(() => {
+                loading.style.display = 'none';
+                showError('Error connecting to server.');
             });
-
-        })
-
-        .catch(function(error) {
-
-            hideLoading();
-
-            console.error(error);
-
-            alert(
-                "Error connecting to the server."
-            );
-
-        });
 
     }
 
-
-    /* =========================================================
-       FIELD SCAN
-    ========================================================= */
+    function splitSteps(steps) {
+        const keywords = ['pesticide', 'fungicide', 'bactericide', 'miticide',
+                           'copper', 'chlorothalonil', 'mancozeb', 'metalaxyl', 'insecticidal'];
+        const pesticideSteps = steps.filter(s =>
+            keywords.some(k => s.toLowerCase().includes(k))
+        );
+        const managementSteps = steps.filter(s => !pesticideSteps.includes(s));
+        return { pesticideSteps, managementSteps };
+    }
 
     function scanField() {
 
-        const file =
-            document
-                .getElementById("fieldInput")
-                .files[0];
+        const file = fieldInput.files[0];
 
         if (!file) {
-
-            alert(
-                "Please select a field image first."
-            );
-
+            showError('Please select a field image first.');
             return;
-
         }
 
-        const grid =
-            document
-                .getElementById("gridSize")
-                .value;
-
-        showLoading(
-            "Scanning field regions... This may take a little longer."
-        );
-
-        document
-            .getElementById("results")
-            .style.display = "none";
-
-
-        const formData =
-            new FormData();
-
-        formData.append(
-            "file",
-            file
-        );
-
-        formData.append(
-            "rows",
-            grid
-        );
-
-        formData.append(
-            "cols",
-            grid
-        );
-
-
-        fetch(
-            "/field_scan",
-            {
-                method: "POST",
-                body: formData
-            }
-        )
-
-        .then(function(response) {
-
-            return response.json();
-
-        })
-
-        .then(function(data) {
-
-            hideLoading();
-
-            if (data.error) {
-
-                alert(data.error);
-
-                return;
-
-            }
-
-
-            currentMode = "field";
-
-            fieldData = data;
-
-            currentDisease =
-                data.most_common_disease || "Field Screening";
-
-            currentFieldContext =
-                buildFieldContext(data);
-
-
-            /* -----------------------------
-               BASIC SUMMARY
-            ----------------------------- */
-
-            document
-                .getElementById("diseaseResult")
-                .textContent =
-                    data.most_common_disease ||
-                    "No disease signals detected";
-
-
-            document
-                .getElementById("confidenceResult")
-                .textContent =
-                    data.average_confidence + "%";
-
-
-            document
-                .getElementById("analysisType")
-                .textContent =
-                    "Precision Agriculture Field Screening";
-
-
-            /* -----------------------------
-               FIELD SYMPTOMS
-            ----------------------------- */
-
-            if (
-                data.field_symptoms &&
-                data.field_symptoms.length > 0
-            ) {
-
-                document
-                    .getElementById("symptomsResult")
-                    .textContent =
-                        data.field_symptoms.join(" ");
-
-            } else {
-
-                document
-                    .getElementById("symptomsResult")
-                    .textContent =
-                        "No disease symptoms were associated with the scanned regions.";
-
-            }
-
-
-            /* -----------------------------
-               FIELD RECOMMENDATIONS
-            ----------------------------- */
-
-            populateList(
-                "pesticideResult",
-                data.field_recommendations
-            );
-
-            populateList(
-                "managementResult",
-                data.field_recommendations
-            );
-
-
-            /* -----------------------------
-               FIELD IMAGE
-            ----------------------------- */
-
-            document
-                .getElementById("fieldImage")
-                .src =
-                    "data:image/jpeg;base64," +
-                    data.image;
-
-
-            /* -----------------------------
-               FIELD STATS
-            ----------------------------- */
-
-            document
-                .getElementById("totalRegions")
-                .textContent =
-                    data.total_tiles;
-
-            document
-                .getElementById("healthyRegions")
-                .textContent =
-                    data.healthy_count +
-                    " (" +
-                    data.healthy_pct +
-                    "%)";
-
-            document
-                .getElementById("diseasedRegions")
-                .textContent =
-                    data.diseased_count +
-                    " (" +
-                    data.diseased_pct +
-                    "%)";
-
-            document
-                .getElementById("averageConfidence")
-                .textContent =
-                    data.average_confidence +
-                    "%";
-
-
-            /* -----------------------------
-               CONDITIONS
-            ----------------------------- */
-
-            const conditionsList =
-                document
-                    .getElementById(
-                        "conditionsList"
-                    );
-
-            conditionsList.innerHTML = "";
-
-            if (
-                data.detected_conditions &&
-                data.detected_conditions.length > 0
-            ) {
-
-                data.detected_conditions
-                    .forEach(function(condition) {
-
-                        const div =
-                            document.createElement(
-                                "div"
-                            );
-
-                        div.className =
-                            "condition";
-
-                        div.innerHTML = `
-
-                            <span class="condition-name">
-                                ${condition.disease}
-                            </span>
-
-                            <span class="condition-count">
-                                ${condition.regions}
-                                region(s)
-                                ·
-                                ${condition.percentage}%
-                            </span>
-
-                        `;
-
-                        conditionsList
-                            .appendChild(div);
-
-                    });
-
-                document
-                    .getElementById(
-                        "conditionsCard"
-                    )
-                    .style.display = "block";
-
-            } else {
-
-                document
-                    .getElementById(
-                        "conditionsCard"
-                    )
-                    .style.display = "none";
-
-            }
-
-
-            /* -----------------------------
-               FIELD STATUS
-            ----------------------------- */
-
-            document
-                .getElementById(
-                    "fieldStatus"
-                )
-                .textContent =
-                    data.field_status;
-
-            document
-                .getElementById(
-                    "fieldStatusCard"
-                )
-                .style.display =
-                    "block";
-
-
-            /* -----------------------------
-               SHOW FIELD CARD
-            ----------------------------- */
-
-            document
-                .getElementById(
-                    "fieldResultsCard"
-                )
-                .style.display =
-                    "block";
-
-
-            /* -----------------------------
-               SHOW EVERYTHING
-            ----------------------------- */
-
-            document
-                .getElementById(
-                    "results"
-                )
-                .style.display =
-                    "block";
-
-            document
-                .getElementById(
-                    "chatSection"
-                )
-                .style.display =
-                    "block";
-
-
-            window.scrollTo({
-
-                top:
-                    document
-                        .getElementById(
-                            "results"
-                        )
-                        .offsetTop - 20,
-
-                behavior: "smooth"
-
+        resetResults();
+        loadingText.textContent = 'Scanning field... this can take longer than a single prediction.';
+        loading.style.display = 'block';
+
+        const n = gridSize.value;
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('rows', n);
+        formData.append('cols', n);
+
+        fetch('/field_scan', { method: 'POST', body: formData })
+            .then(response => response.json())
+            .then(data => {
+
+                loading.style.display = 'none';
+
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+
+                analysisType.textContent = `Field Screening (${data.rows} x ${data.cols} grid)`;
+                diseaseResult.textContent = data.diseased_count > 0
+                    ? 'Possible disease regions detected'
+                    : 'Field looks healthy';
+                confidenceResult.textContent = `${data.average_confidence}% avg`;
+                symptomsResult.textContent = 'See the annotated field map and detected conditions below.';
+                pesticideResult.innerHTML = '';
+                managementResult.innerHTML = '';
+
+                fieldImage.src = `data:image/jpeg;base64,${data.image}`;
+                totalRegions.textContent = data.total_tiles;
+                healthyRegions.textContent = data.healthy_count;
+                diseasedRegions.textContent = data.diseased_count;
+                averageConfidence.textContent = `${data.average_confidence}%`;
+                fieldResultsCard.style.display = 'block';
+
+                const tally = data.conditions_tally || {};
+                const tallyKeys = Object.keys(tally);
+                if (tallyKeys.length) {
+                    conditionsList.innerHTML = tallyKeys.map(name => `
+                        <div class="condition">
+                            <span class="condition-name">${name}</span>
+                            <span class="condition-count">${tally[name]} region${tally[name] > 1 ? 's' : ''}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    conditionsList.innerHTML = '<p>No disease conditions flagged in this scan.</p>';
+                }
+                conditionsCard.style.display = 'block';
+
+                fieldStatus.textContent = data.field_status;
+                fieldStatusCard.style.display = 'block';
+
+                results.style.display = 'block';
+                chatSection.style.display = 'block';
+                currentDiseaseKey = data.most_common_disease || 'general field screening result';
+
+            })
+            .catch(() => {
+                loading.style.display = 'none';
+                showError('Error connecting to server.');
             });
 
-        })
-
-        .catch(function(error) {
-
-            hideLoading();
-
-            console.error(error);
-
-            alert(
-                "Error connecting to the server."
-            );
-
-        });
-
     }
-
-
-    /* =========================================================
-       BUILD FIELD CONTEXT FOR CHAT
-    ========================================================= */
-
-    function buildFieldContext(data) {
-
-        let context = "";
-
-        context +=
-            "Analysis type: Precision Agriculture Field Screening\n";
-
-        context +=
-            "Total regions scanned: " +
-            data.total_tiles +
-            "\n";
-
-        context +=
-            "Healthy regions: " +
-            data.healthy_count +
-            " (" +
-            data.healthy_pct +
-            "%)\n";
-
-        context +=
-            "Flagged regions: " +
-            data.diseased_count +
-            " (" +
-            data.diseased_pct +
-            "%)\n";
-
-        context +=
-            "Average model confidence: " +
-            data.average_confidence +
-            "%\n";
-
-        context +=
-            "Most common condition: " +
-            (
-                data.most_common_disease ||
-                "None"
-            ) +
-            "\n";
-
-
-        if (
-            data.detected_conditions &&
-            data.detected_conditions.length > 0
-        ) {
-
-            context +=
-                "Detected conditions:\n";
-
-            data.detected_conditions
-                .forEach(function(condition) {
-
-                    context +=
-                        "- " +
-                        condition.disease +
-                        ": " +
-                        condition.regions +
-                        " region(s), " +
-                        condition.percentage +
-                        "%\n";
-
-                });
-
-        }
-
-
-        if (
-            data.field_symptoms &&
-            data.field_symptoms.length > 0
-        ) {
-
-            context +=
-                "Associated symptoms:\n";
-
-            data.field_symptoms
-                .forEach(function(symptom) {
-
-                    context +=
-                        "- " +
-                        symptom +
-                        "\n";
-
-                });
-
-        }
-
-
-        return context;
-
-    }
-
-
-    /* =========================================================
-       FARMER CHAT
-    ========================================================= */
 
     function askQuestion() {
 
-        const question =
-            document
-                .getElementById(
-                    "chatInput"
-                )
-                .value
-                .trim();
+        const question = chatInput.value;
+        if (!question) return;
 
-        if (!question) {
+        chatAnswer.style.display = 'block';
+        chatAnswer.innerHTML = '<p>Thinking...</p>';
 
-            return;
-
-        }
-
-
-        const answerBox =
-            document
-                .getElementById(
-                    "chatAnswer"
-                );
-
-        answerBox.style.display =
-            "block";
-
-        answerBox.innerHTML =
-            "<p>Thinking...</p>";
-
-
-        const payload = {
-
-            disease:
-                currentDisease,
-
-            question:
-                question
-
-        };
-
-
-        /*
-         * If the farmer is talking about
-         * a field scan, send the field
-         * screening information as context.
-         */
-
-        if (
-            currentMode === "field" &&
-            currentFieldContext
-        ) {
-
-            payload.field_context =
-                currentFieldContext;
-
-        }
-
-
-        fetch(
-            "/chat",
-            {
-
-                method: "POST",
-
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
-
-                body:
-                    JSON.stringify(
-                        payload
-                    )
-
-            }
-        )
-
-        .then(function(response) {
-
-            return response.json();
-
+        fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ disease: currentDiseaseKey, question: question })
         })
-
-        .then(function(data) {
-
-            if (data.error) {
-
-                answerBox.innerHTML =
-                    `<p class="error">${data.error}</p>`;
-
-                return;
-
-            }
-
-            answerBox.innerHTML =
-                marked.parse(
-                    data.answer
-                );
-
-        })
-
-        .catch(function(error) {
-
-            console.error(error);
-
-            answerBox.innerHTML =
-                "<p class='error'>Unable to connect to the agricultural assistant.</p>";
-
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    chatAnswer.innerHTML = `<p style="color:#a51e1e;">${data.error}</p>`;
+                } else {
+                    chatAnswer.innerHTML = marked.parse(data.answer);
+                }
+            })
+            .catch(() => {
+                chatAnswer.innerHTML = '<p style="color:#a51e1e;">Error connecting to server.</p>';
+            });
 
     }
 
+</script>
 
-    /* =========================================================
-       ENTER KEY FOR CHAT
-    ========================================================= */
-
-    document
-        .getElementById("chatInput")
-        .addEventListener(
-            "keydown",
-            function(event) {
-
-                if (
-                    event.key === "Enter"
-                ) {
-
-                    askQuestion();
-
-                }
-
-            }
-        );
-
-</script></body>
+</body>
 </html>
